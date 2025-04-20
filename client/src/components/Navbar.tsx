@@ -2,13 +2,19 @@ import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
 
 const Navbar = () => {
   const [location] = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, logoutMutation } = useAuth();
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const handleLogout = () => {
+    logoutMutation.mutate();
   };
 
   const isActive = (path: string) => {
@@ -23,23 +29,33 @@ const Navbar = () => {
             <path d="M15 4c-2.5 0-4.55 1.82-4.95 4.21L8.12 9.29a1 1 0 0 0-1.41 0l-5.42 5.41a1 1 0 0 0 0 1.42l5.42 5.41a1 1 0 0 0 1.41 0l5.41-5.41a1 1 0 0 0 0-1.42l-1.08-1.08C12.85 13.19 14.62 14 16.5 14c2.5 0 4.5-2 4.5-4.5S19 5 16.5 5"></path>
           </svg>
           <Link href="/">
-            <a className="text-xl font-bold text-gray-800">AgroFix</a>
+            <span className="text-xl font-bold text-gray-800 cursor-pointer">AgroFix</span>
           </Link>
         </div>
 
         <nav className="hidden md:flex space-x-6">
           <Link href="/products">
-            <a className={`font-medium ${isActive("/products")}`}>Products</a>
+            <span className={`font-medium cursor-pointer ${isActive("/products")}`}>Products</span>
           </Link>
-          <Link href="/place-order">
-            <a className={`font-medium ${isActive("/place-order")}`}>Place Order</a>
-          </Link>
-          <Link href="/track-order">
-            <a className={`font-medium ${isActive("/track-order")}`}>Track Order</a>
-          </Link>
-          <Link href="/admin">
-            <a className={`font-medium ${isActive("/admin")}`}>Admin</a>
-          </Link>
+          
+          {/* Show these links only if user is logged in */}
+          {user && (
+            <>
+              <Link href="/place-order">
+                <span className={`font-medium cursor-pointer ${isActive("/place-order")}`}>Place Order</span>
+              </Link>
+              <Link href="/track-order">
+                <span className={`font-medium cursor-pointer ${isActive("/track-order")}`}>Track Order</span>
+              </Link>
+            </>
+          )}
+          
+          {/* Show admin link only if user is admin */}
+          {user && user.isAdmin && (
+            <Link href="/admin">
+              <span className={`font-medium cursor-pointer ${isActive("/admin")}`}>Admin</span>
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center space-x-3">
@@ -51,20 +67,33 @@ const Navbar = () => {
           >
             <Menu className="h-6 w-6" />
           </Button>
-          <Link href="/admin">
-            <a className="bg-primary-50 text-primary-700 hover:bg-primary-100 px-4 py-2 rounded-md font-medium flex items-center space-x-1">
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                className="h-4 w-4"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v3m-3-3h6m-6-4h6m-6-4h6M9 7h1m4 0h1M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-              <span>Admin Login</span>
-            </a>
-          </Link>
+          
+          {/* Show login/register button if user is not logged in */}
+          {!user ? (
+            <Link href="/auth">
+              <Button variant="outline" className="flex items-center space-x-1">
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  className="h-4 w-4 mr-1"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span>Login / Register</span>
+              </Button>
+            </Link>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <span className="text-sm font-medium hidden md:inline-block">
+                Hello, {user.username}
+              </span>
+              <Button onClick={handleLogout} variant="outline" size="sm">
+                Logout
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -73,17 +102,38 @@ const Navbar = () => {
         <div className="md:hidden bg-white border-b border-gray-200 py-2">
           <div className="container mx-auto px-4 flex flex-col space-y-3">
             <Link href="/products">
-              <a className={`py-2 font-medium ${isActive("/products")}`}>Products</a>
+              <span className={`py-2 font-medium cursor-pointer ${isActive("/products")}`}>Products</span>
             </Link>
-            <Link href="/place-order">
-              <a className={`py-2 font-medium ${isActive("/place-order")}`}>Place Order</a>
-            </Link>
-            <Link href="/track-order">
-              <a className={`py-2 font-medium ${isActive("/track-order")}`}>Track Order</a>
-            </Link>
-            <Link href="/admin">
-              <a className={`py-2 font-medium ${isActive("/admin")}`}>Admin</a>
-            </Link>
+            
+            {/* Show these links only if user is logged in */}
+            {user && (
+              <>
+                <Link href="/place-order">
+                  <span className={`py-2 font-medium cursor-pointer ${isActive("/place-order")}`}>Place Order</span>
+                </Link>
+                <Link href="/track-order">
+                  <span className={`py-2 font-medium cursor-pointer ${isActive("/track-order")}`}>Track Order</span>
+                </Link>
+              </>
+            )}
+            
+            {/* Show admin link only if user is admin */}
+            {user && user.isAdmin && (
+              <Link href="/admin">
+                <span className={`py-2 font-medium cursor-pointer ${isActive("/admin")}`}>Admin</span>
+              </Link>
+            )}
+            
+            {/* Logout button for mobile */}
+            {user && (
+              <Button 
+                onClick={handleLogout} 
+                variant="ghost" 
+                className="justify-start p-0 h-auto font-medium text-gray-600 hover:text-primary-600"
+              >
+                Logout
+              </Button>
+            )}
           </div>
         </div>
       )}

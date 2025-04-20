@@ -25,18 +25,47 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 // Middleware to check if user is authenticated
 export const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
+  // First check if the user is authenticated via session
   if (req.isAuthenticated()) {
     return next();
   }
+  
+  // Then check for JWT token in Authorization header
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+    
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET) as { id: number; username: string; isAdmin: boolean };
+      
+      // Set user info in request
+      req.user = {
+        id: decoded.id,
+        username: decoded.username,
+        password: '', // Password is not included in the token
+        isAdmin: decoded.isAdmin
+      };
+      
+      return next();
+    } catch (error) {
+      // Invalid token
+      console.error('JWT verification error:', error);
+    }
+  }
+  
+  // Not authenticated via session or valid JWT
   res.status(401).json({ message: "Unauthorized" });
 };
 
 // Middleware to check if user is an admin
 export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
-  if (req.isAuthenticated() && req.user.isAdmin) {
-    return next();
-  }
-  res.status(403).json({ message: "Forbidden - Admin access required" });
+  // First make sure the user is authenticated (this will check both session and JWT)
+  isAuthenticated(req, res, () => {
+    if (req.user && req.user.isAdmin) {
+      return next();
+    }
+    res.status(403).json({ message: "Forbidden - Admin access required" });
+  });
 };
 
 // Password utility functions
@@ -172,12 +201,8 @@ export function setupAuth(app: Express) {
     });
   });
 
-  app.get("/api/user", (req: Request, res: Response) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Not authenticated" });
-    }
-    
-    const { id, username, isAdmin } = req.user;
+  app.get("/api/user", isAuthenticated, (req: Request, res: Response) => {
+    const { id, username, isAdmin } = req.user!;
     res.json({ id, username, isAdmin });
   });
 }
