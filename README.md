@@ -1,7 +1,7 @@
 # AgroFix - Bulk Vegetable & Fruit Ordering Platform
 
 <p align="center">
-  <img src="./attached_assets/92cbc61e-9138-4b62-9323-9edaacd4fe63.avif" alt="AgroFix" width="250">
+  <img src="https://drive.google.com/file/d/1KEi8l2WXFfcUQx00X3QBCJr4tipGQcL8/view?usp=drive_link" alt="AgroFix" width="250">
 </p>
 
 ## Overview
