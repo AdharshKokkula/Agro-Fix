@@ -1,0 +1,63 @@
+Agrofix Assignment Reference Document
+Objective:
+Create a web application to facilitate bulk vegetable/fruit orders. Buyers can browse available products, place bulk orders, and track their status, while admins can manage orders and inventory efficiently. The main objectives are to develop a full-stack web application with a user-friendly interface, a robust backend, and an efficient database design. The expected learning outcomes include proficiency in Next.js/React.js, API development, database management, and deployment strategies.
+
+Step-by-Step Instructions:
+
+Project Setup and Initialization:
+
+Project Directory Setup: Create a new directory for the project.
+Initialize Project: Use npx create-next-app or create-react-app to initialize a new Next.js or React.js project within the directory. Choose TypeScript if desired.
+Install Dependencies: Install necessary dependencies such as axios (for API requests), react-hook-form or formik (for form management), yup or zod (for form validation), and any UI library you choose (e.g., Material UI, Tailwind CSS, Chakra UI). Also install the PostgreSQL client library, such as pg if not using an ORM.
+Initialize Git Repository: Initialize a Git repository in the project directory using git init.
+Development Process:
+
+Database Setup:
+Neon.tech/Docker: Set up a PostgreSQL or SQL database on Neon.tech or using Docker.
+Database Schema: Design the database schema with tables for products (vegetables/fruits) and orders. The product table should include fields like id, name, and price. The orders table should include fields like id, buyer_name, buyer_contact, delivery_address, items (serialized as JSON), and status.
+ORM/Query Builder (Optional): Consider using an ORM like Prisma or Sequelize, or a query builder like Knex.js, to simplify database interactions.
+Backend API Development:
+API Routes: Create API routes for the following functionalities:
+GET /api/products: Fetch the product catalogue.
+POST /api/orders: Place a new order.
+GET /api/orders/:id: View order details (for buyers).
+GET /api/orders: View all orders (for admins).
+PUT /api/orders/:id: Update order status (for admins).
+POST /api/products: Add a new product (for admins).
+PUT /api/products/:id: Edit an existing product (for admins).
+DELETE /api/products/:id: Remove a product (for admins).
+HTTP Methods: Use appropriate HTTP methods (GET, POST, PUT, DELETE) for each API endpoint.
+Error Handling: Implement proper error handling and validation for each API route.
+Authentication (Optional): If implementing authentication, add API routes for login and user management.
+Frontend Development:
+Product Catalogue Page: Create a page to display the product catalogue fetched from the API.
+Order Placement Form: Create a form for buyers to enter their details, select products, and specify quantities and delivery information.
+Order Tracking View: Create a page where buyers can check the status of their orders using the order ID.
+Admin Dashboard: Create a dashboard for admins to view and manage orders, and manage the product catalogue.
+API Integration: Integrate the frontend components with the backend API to fetch data and submit orders.
+State Management: Use React Context, Redux, Zustand, or similar for state management, especially for shared data like the product catalogue and user authentication status.
+Order Status Logic: Implement logic to manage and update order statuses, ensuring proper transitions between "Pending", "In Progress", and "Delivered".
+Inventory Management Logic: Implement logic to add, edit, and remove products from the catalogue.
+Styling and Design:
+
+UI Library/CSS Framework: Choose a UI library or CSS framework (e.g., Material UI, Tailwind CSS, Chakra UI, Bootstrap) to ensure a consistent and responsive design.
+Responsive Design: Implement responsive design principles to ensure the application works well on different screen sizes.
+User Experience (UX): Focus on creating an intuitive and user-friendly interface with clear navigation and feedback mechanisms.
+Deployment:
+
+Vercel Deployment: Create an account on Vercel.
+Connect to GitHub: Connect your GitHub repository to Vercel.
+Configure Environment Variables: Configure environment variables on Vercel with the database credentials from Neon.tech or your Docker setup.
+Deploy Application: Deploy the application to Vercel.
+Test Deployment: Test the deployed application to ensure it is working correctly.
+Submission Guidelines:
+
+GitHub Repository:
+Source Code: Ensure all source code is committed to the GitHub repository.
+README.md: Create a README.md file with:
+A brief description of the project and implemented features.
+Setup instructions for running the application locally.
+Instructions for setting up the database.
+Any other relevant information.
+.env File: Provide database credentials (or mock data) in a .env file. Make sure to not commit this file to the repository. Provide instructions in the README on how to create the .env file and the required variables.
+Deployment URL : deployed on Vercel and share the live URL.
