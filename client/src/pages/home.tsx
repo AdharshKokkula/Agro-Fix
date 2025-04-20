@@ -35,19 +35,19 @@ export default function HomePage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-600 to-primary-700 text-white py-20">
+      <section className="bg-gradient-to-br from-primary-800 to-primary-900 text-white py-20">
         <div className="container mx-auto px-4">
           <div className="md:flex items-center justify-between">
             <div className="md:w-1/2 mb-8 md:mb-0">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+              <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight text-white drop-shadow-md">
                 Fresh Produce at Wholesale Prices
               </h1>
-              <p className="text-lg md:text-xl mb-10 text-white/90 leading-relaxed">
+              <p className="text-lg md:text-xl mb-10 text-white leading-relaxed">
                 Order bulk vegetables and fruits directly from farms to your business at competitive prices.
               </p>
               <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
                 <Link href="/products">
-                  <Button className="bg-white text-primary-700 hover:bg-gray-100 w-full sm:w-auto font-medium px-6 py-2.5 shadow-lg transition-all">
+                  <Button className="bg-white text-primary-800 hover:bg-gray-100 w-full sm:w-auto font-medium px-6 py-2.5 shadow-lg transition-all">
                     Browse Products
                   </Button>
                 </Link>
@@ -73,7 +73,7 @@ export default function HomePage() {
                         placeholder="Enter your order ID"
                       />
                     </div>
-                    <Button type="submit" className="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium transition-colors">
+                    <Button type="submit" className="w-full bg-primary-800 hover:bg-primary-900 text-white font-medium transition-colors shadow-md hover:shadow-lg">
                       Track Now
                     </Button>
                   </form>
@@ -117,7 +117,7 @@ export default function HomePage() {
           
           <div className="mt-14 text-center">
             <Link href="/products">
-              <Button className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 text-lg font-medium shadow-md transition-all hover:translate-y-[-2px]">
+              <Button className="bg-primary-800 hover:bg-primary-900 text-white px-8 py-3 text-lg font-medium shadow-md hover:shadow-lg transition-all hover:translate-y-[-2px]">
                 View All Products
               </Button>
             </Link>
@@ -136,7 +136,7 @@ export default function HomePage() {
             <div className="hidden md:block absolute top-9 left-1/6 right-1/6 h-0.5 bg-primary-100"></div>
             
             <div className="text-center relative group hover:shadow-lg transition-all duration-300 p-8 rounded-xl border border-transparent hover:border-primary-100">
-              <div className="w-20 h-20 bg-gradient-to-br from-primary-600 to-primary-700 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6 shadow-lg transform group-hover:scale-110 transition-transform">
+              <div className="w-20 h-20 bg-gradient-to-br from-primary-700 to-primary-800 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6 shadow-lg transform group-hover:scale-110 transition-transform">
                 1
               </div>
               <h3 className="text-xl font-semibold mb-4 text-gray-800">Browse Products</h3>
@@ -144,7 +144,7 @@ export default function HomePage() {
             </div>
             
             <div className="text-center relative group hover:shadow-lg transition-all duration-300 p-8 rounded-xl border border-transparent hover:border-primary-100">
-              <div className="w-20 h-20 bg-gradient-to-br from-primary-600 to-primary-700 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6 shadow-lg transform group-hover:scale-110 transition-transform">
+              <div className="w-20 h-20 bg-gradient-to-br from-primary-700 to-primary-800 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6 shadow-lg transform group-hover:scale-110 transition-transform">
                 2
               </div>
               <h3 className="text-xl font-semibold mb-4 text-gray-800">Place Your Order</h3>
@@ -152,7 +152,7 @@ export default function HomePage() {
             </div>
             
             <div className="text-center relative group hover:shadow-lg transition-all duration-300 p-8 rounded-xl border border-transparent hover:border-primary-100">
-              <div className="w-20 h-20 bg-gradient-to-br from-primary-600 to-primary-700 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6 shadow-lg transform group-hover:scale-110 transition-transform">
+              <div className="w-20 h-20 bg-gradient-to-br from-primary-700 to-primary-800 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6 shadow-lg transform group-hover:scale-110 transition-transform">
                 3
               </div>
               <h3 className="text-xl font-semibold mb-4 text-gray-800">Receive Fresh Produce</h3>
@@ -162,7 +162,7 @@ export default function HomePage() {
           
           <div className="mt-16 text-center">
             <Link href="/place-order">
-              <Button className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 text-lg font-medium shadow-md">
+              <Button className="bg-primary-800 hover:bg-primary-900 text-white px-8 py-3 text-lg font-medium shadow-md hover:shadow-lg transition-all">
                 Start Ordering Now
               </Button>
             </Link>
