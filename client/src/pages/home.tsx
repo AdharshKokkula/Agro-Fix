@@ -8,7 +8,6 @@ import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { ProductCard } from "@/components/ui/product-card";
 import { type Product } from "@shared/schema";
-import bannerImage from "../assets/banner.avif";
 
 export default function HomePage() {
   const [orderId, setOrderId] = useState("");
@@ -36,14 +35,8 @@ export default function HomePage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        {/* Banner Image with Overlay */}
-        <div className="absolute inset-0 w-full h-full">
-          <img src={bannerImage} alt="Fresh produce banner" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary-900/90 to-primary-800/75 mix-blend-multiply"></div>
-        </div>
-        
-        <div className="relative z-10 container mx-auto px-4 py-20">
+      <section className="bg-gradient-to-br from-primary-800 to-primary-900 text-white py-20">
+        <div className="container mx-auto px-4">
           <div className="md:flex items-center justify-between">
             <div className="md:w-1/2 mb-8 md:mb-0">
               <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight text-white drop-shadow-md">
@@ -66,7 +59,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="md:w-2/5">
-              <Card className="bg-white/95 backdrop-blur-sm rounded-lg p-6 shadow-xl border border-white/20">
+              <Card className="bg-white rounded-lg p-6 shadow-xl border border-gray-100">
                 <CardContent className="p-0">
                   <h2 className="text-primary-700 text-xl font-semibold mb-4">Track Your Order</h2>
                   <form onSubmit={handleTrackOrder} className="space-y-4">
