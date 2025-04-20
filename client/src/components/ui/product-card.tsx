@@ -17,7 +17,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const [isWishlisted, setIsWishlisted] = useState(false);
 
   const handleAddToCart = () => {
-    addToCart(product);
+    addToCart(product, 1); // Add 1kg as default quantity
     
     toast({
       title: "Added to order",

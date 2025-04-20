@@ -14,6 +14,8 @@ interface CartState {
   addToCart: (product: Product, quantity: number) => void;
   removeFromCart: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
+  incrementQuantity: (productId: number) => void;
+  decrementQuantity: (productId: number) => void;
   clearCart: () => void;
   
   // Sync with server when user is logged in
@@ -23,7 +25,7 @@ interface CartState {
 export const useCart = create<CartState>()(
   persist(
     (set, get) => ({
-      items: {},
+      items: {} as Record<number, CartItem>,
       totalItems: 0,
       totalAmount: 0,
       
@@ -105,6 +107,28 @@ export const useCart = create<CartState>()(
         
         // Sync with server if user is logged in
         get().syncWithServer();
+      },
+      
+      incrementQuantity: (productId: number) => {
+        const { items } = get();
+        const item = items[productId];
+        
+        if (!item) return;
+        
+        // Increment quantity by 1
+        const newQuantity = item.quantity + 1;
+        get().updateQuantity(productId, newQuantity);
+      },
+      
+      decrementQuantity: (productId: number) => {
+        const { items } = get();
+        const item = items[productId];
+        
+        if (!item || item.quantity <= 1) return;
+        
+        // Decrement quantity by 1
+        const newQuantity = item.quantity - 1;
+        get().updateQuantity(productId, newQuantity);
       },
       
       clearCart: () => {
