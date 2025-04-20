@@ -1,15 +1,31 @@
 {
   "version": 2,
-  "buildCommand": "bash ./build.sh",
-  "outputDirectory": "dist",
-  "functions": {
-    "api/**": {
-      "memory": 1024
+  "builds": [
+    {
+      "src": "vercel.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "build.sh",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "client/dist"
+      }
     }
-  },
-  "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index.js" },
-    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/vercel.js"
+    },
+    {
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|svg|ico|json))",
+      "dest": "/client/dist/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/vercel.js"
+    }
   ],
   "env": {
     "NODE_ENV": "production"
