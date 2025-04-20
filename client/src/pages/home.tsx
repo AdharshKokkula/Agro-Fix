@@ -50,7 +50,7 @@ export default function HomePage() {
               </p>
               <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
                 <Link href="/products">
-                  <Button className="bg-white text-primary-800 hover:bg-gray-100 w-full sm:w-auto font-medium px-6 py-2.5 shadow-lg transition-all">
+                  <Button className="bg-white text-green-700 hover:bg-gray-100 w-full sm:w-auto font-medium px-6 py-2.5 shadow-lg transition-all">
                     Browse Products
                   </Button>
                 </Link>
@@ -88,7 +88,7 @@ export default function HomePage() {
                     </div>
                     <Button
                       type="submit"
-                      className="w-full bg-primary-800 hover:bg-primary-900 text-white font-medium transition-colors shadow-md hover:shadow-lg"
+                      className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium shadow-md hover:shadow-lg transition-all"
                     >
                       Track Now
                     </Button>
@@ -212,7 +212,7 @@ export default function HomePage() {
 
           <div className="mt-16 text-center">
             <Link href="/place-order">
-              <Button className="bg-primary-800 hover:bg-primary-900 text-white px-8 py-3 text-lg font-medium shadow-md hover:shadow-lg transition-all">
+              <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-3 text-lg font-medium shadow-md hover:shadow-lg transition-all hover:translate-y-[-2px]">
                 Start Ordering Now
               </Button>
             </Link>
