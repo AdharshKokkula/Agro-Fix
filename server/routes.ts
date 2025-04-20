@@ -87,7 +87,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete("/api/products/:id", async (req: Request, res: Response) => {
+  app.delete("/api/products/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -106,16 +106,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Order routes
-  app.get("/api/orders", async (req: Request, res: Response) => {
+  app.get("/api/orders", isAuthenticated, async (req: Request, res: Response) => {
     try {
+      // If user is admin, return all orders
+      // Otherwise, filter orders by user email (assuming email is used in orders)
       const orders = await storage.getOrders();
-      res.json(orders);
+      
+      if (req.user && req.user.isAdmin) {
+        // Admin sees all orders
+        res.json(orders);
+      } else if (req.user) {
+        // Regular users only see their own orders (matching by email)
+        const userOrders = orders.filter(order => order.email === req.user!.username);
+        res.json(userOrders);
+      } else {
+        res.status(401).json({ message: "Authentication required" });
+      }
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch orders" });
     }
   });
 
-  app.get("/api/orders/:id", async (req: Request, res: Response) => {
+  app.get("/api/orders/:id", isAuthenticated, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
@@ -125,6 +137,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const order = await storage.getOrder(id);
       if (!order) {
         return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Check if the user is authorized to view this order
+      // Admin can view all orders, regular users can only view their own orders
+      if (req.user && (!req.user.isAdmin && order.email !== req.user.username)) {
+        return res.status(403).json({ message: "Unauthorized access to this order" });
       }
 
       res.json(order);
@@ -147,7 +165,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/orders/:id/status", async (req: Request, res: Response) => {
+  app.put("/api/orders/:id/status", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
