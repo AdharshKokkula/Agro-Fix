@@ -518,7 +518,7 @@ export class DatabaseStorage implements IStorage {
     
     // First, get the current highest order ID
     const result = await db.select({ maxId: sql`MAX(id)` }).from(orders);
-    const maxId = result[0].maxId || 0;
+    const maxId = Number(result[0].maxId) || 0;
     const nextId = maxId + 1;
     
     // Format: AGF-YYYY-000001 (padded with leading zeros)

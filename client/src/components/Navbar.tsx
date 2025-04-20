@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu } from "lucide-react";
+import { Menu, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { CartButton } from "@/components/ui/cart-drawer";
 
 const Navbar = () => {
   const [location] = useLocation();
@@ -59,6 +60,9 @@ const Navbar = () => {
         </nav>
 
         <div className="flex items-center space-x-3">
+          {/* Cart Button */}
+          <CartButton />
+          
           <Button 
             variant="ghost" 
             size="icon" 
