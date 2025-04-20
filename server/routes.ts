@@ -193,6 +193,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Cart routes
+  app.get("/api/cart", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const cart = await storage.getCart(req.user.id);
+      res.json(cart || { items: [] });
+    } catch (error) {
+      console.error("Failed to fetch cart:", error);
+      res.status(500).json({ message: "Failed to fetch cart" });
+    }
+  });
+
+  app.post("/api/cart", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const { items } = req.body;
+      if (!Array.isArray(items)) {
+        return res.status(400).json({ message: "Invalid cart items format" });
+      }
+
+      const cart = await storage.updateCart(req.user.id, items);
+      res.json(cart);
+    } catch (error) {
+      console.error("Failed to update cart:", error);
+      res.status(500).json({ message: "Failed to update cart" });
+    }
+  });
+
+  // Order tracking by order number (public route)
+  app.get("/api/track/:orderNumber", async (req: Request, res: Response) => {
+    try {
+      const { orderNumber } = req.params;
+      if (!orderNumber) {
+        return res.status(400).json({ message: "Order number is required" });
+      }
+
+      const order = await storage.getOrderByNumber(orderNumber);
+      if (!order) {
+        return res.status(404).json({ message: "Order not found" });
+      }
+
+      // Return limited information for public tracking
+      res.json({
+        id: order.id,
+        orderNumber: order.orderNumber,
+        status: order.status,
+        createdAt: order.createdAt,
+        preferredDeliveryDate: order.preferredDeliveryDate,
+        totalAmount: order.totalAmount
+      });
+    } catch (error) {
+      console.error("Failed to track order:", error);
+      res.status(500).json({ message: "Failed to track order" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

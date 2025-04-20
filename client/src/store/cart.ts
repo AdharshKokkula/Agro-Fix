@@ -1,100 +1,197 @@
-import { useState, useEffect } from 'react';
-import { Product } from '@shared/schema';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { Product, CartItem } from '@shared/schema';
+import { apiRequest } from '@/lib/queryClient';
+import { useAuth } from '@/hooks/use-auth';
+import { queryClient } from '@/lib/queryClient';
 
-// Define the cart structure
-type CartItems = Record<number, number>; // productId -> quantity
-
-// Create a custom hook for cart management
-export function useCart() {
-  const [cart, setCart] = useState<CartItems>({});
-
-  // Load cart from localStorage on initial load
-  useEffect(() => {
-    const savedCart = localStorage.getItem('agrofix-cart');
-    if (savedCart) {
-      try {
-        setCart(JSON.parse(savedCart));
-      } catch (e) {
-        console.error('Failed to parse cart from localStorage:', e);
-      }
-    }
-  }, []);
-
-  // Save cart to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem('agrofix-cart', JSON.stringify(cart));
-  }, [cart]);
-
-  // Add product to cart
-  const addToCart = (product: Product, quantity = 1) => {
-    setCart(prevCart => {
-      const currentQuantity = prevCart[product.id] || 0;
-      return {
-        ...prevCart,
-        [product.id]: currentQuantity + quantity
-      };
-    });
-  };
-
-  // Remove product from cart
-  const removeFromCart = (productId: number) => {
-    setCart(prevCart => {
-      const newCart = { ...prevCart };
-      delete newCart[productId];
-      return newCart;
-    });
-  };
-
-  // Increment quantity
-  const incrementQuantity = (productId: number) => {
-    setCart(prevCart => ({
-      ...prevCart,
-      [productId]: (prevCart[productId] || 0) + 1
-    }));
-  };
-
-  // Decrement quantity
-  const decrementQuantity = (productId: number) => {
-    setCart(prevCart => {
-      if (prevCart[productId] <= 1) {
-        return prevCart;
-      }
-      return {
-        ...prevCart,
-        [productId]: prevCart[productId] - 1
-      };
-    });
-  };
-
-  // Clear cart
-  const clearCart = () => {
-    setCart({});
-  };
-
-  // Get cart total
-  const getCartTotal = () => {
-    return Object.entries(cart).reduce((total, [productId, quantity]) => {
-      const parsedId = parseInt(productId);
-      // For safety - this would better be looked up from a product store
-      // But for simplicity we'll leave this logic here
-      // and assume the component will pass proper product data
-      return total + (quantity || 0);
-    }, 0);
-  };
-
-  // Get item count
-  const getItemCount = () => {
-    return Object.values(cart).reduce((count, quantity) => count + quantity, 0);
-  };
-
-  return {
-    cart,
-    addToCart,
-    removeFromCart,
-    incrementQuantity,
-    decrementQuantity,
-    clearCart,
-    getCartTotal,
-    getItemCount
-  };
+interface CartState {
+  items: Record<number, CartItem>; // productId -> CartItem
+  totalItems: number;
+  totalAmount: number;
+  
+  // Cart operations
+  addToCart: (product: Product, quantity: number) => void;
+  removeFromCart: (productId: number) => void;
+  updateQuantity: (productId: number, quantity: number) => void;
+  clearCart: () => void;
+  
+  // Sync with server when user is logged in
+  syncWithServer: () => Promise<void>;
 }
+
+export const useCart = create<CartState>()(
+  persist(
+    (set, get) => ({
+      items: {},
+      totalItems: 0,
+      totalAmount: 0,
+      
+      addToCart: (product: Product, quantity: number) => {
+        const { items } = get();
+        const currentQuantity = items[product.id]?.quantity || 0;
+        const newQuantity = currentQuantity + quantity;
+        
+        // Make sure it meets minimum order quantity
+        const finalQuantity = Math.max(newQuantity, product.minOrderQuantity);
+        
+        // Calculate subtotal
+        const subtotal = finalQuantity * product.price;
+        
+        // Create cart item
+        const cartItem: CartItem = {
+          productId: product.id,
+          name: product.name,
+          price: product.price,
+          quantity: finalQuantity,
+          subtotal: subtotal
+        };
+        
+        // Update state
+        set((state) => {
+          const newItems = { ...state.items, [product.id]: cartItem };
+          return {
+            items: newItems,
+            totalItems: Object.values(newItems).reduce((sum, item) => sum + item.quantity, 0),
+            totalAmount: Object.values(newItems).reduce((sum, item) => sum + item.subtotal, 0)
+          };
+        });
+        
+        // Sync with server if user is logged in
+        get().syncWithServer();
+      },
+      
+      removeFromCart: (productId: number) => {
+        set((state) => {
+          const newItems = { ...state.items };
+          delete newItems[productId];
+          
+          return {
+            items: newItems,
+            totalItems: Object.values(newItems).reduce((sum, item) => sum + item.quantity, 0),
+            totalAmount: Object.values(newItems).reduce((sum, item) => sum + item.subtotal, 0)
+          };
+        });
+        
+        // Sync with server if user is logged in
+        get().syncWithServer();
+      },
+      
+      updateQuantity: (productId: number, quantity: number) => {
+        const { items } = get();
+        const item = items[productId];
+        
+        if (!item) return;
+        
+        // Calculate new subtotal
+        const subtotal = quantity * item.price;
+        
+        // Update cart item
+        const updatedItem: CartItem = {
+          ...item,
+          quantity,
+          subtotal
+        };
+        
+        // Update state
+        set((state) => {
+          const newItems = { ...state.items, [productId]: updatedItem };
+          return {
+            items: newItems,
+            totalItems: Object.values(newItems).reduce((sum, item) => sum + item.quantity, 0),
+            totalAmount: Object.values(newItems).reduce((sum, item) => sum + item.subtotal, 0)
+          };
+        });
+        
+        // Sync with server if user is logged in
+        get().syncWithServer();
+      },
+      
+      clearCart: () => {
+        set({
+          items: {},
+          totalItems: 0,
+          totalAmount: 0
+        });
+        
+        // Sync with server if user is logged in
+        get().syncWithServer();
+      },
+      
+      syncWithServer: async () => {
+        try {
+          // Get current user
+          const currentUser = queryClient.getQueryData<any>(['/api/user']);
+          
+          if (currentUser && currentUser.id) {
+            const { items } = get();
+            const cartItems = Object.values(items);
+            
+            // Send cart data to server
+            await apiRequest('POST', `/api/cart`, { items: cartItems });
+          }
+        } catch (error) {
+          console.error('Failed to sync cart with server:', error);
+        }
+      }
+    }),
+    {
+      name: 'agrofix-cart', // Name of the item in localStorage
+    }
+  )
+);
+
+// Load cart from server when user logs in
+export const loadCartFromServer = async () => {
+  const currentUser = queryClient.getQueryData<any>(['/api/user']);
+  
+  if (currentUser && currentUser.id) {
+    try {
+      const response = await apiRequest('GET', `/api/cart`);
+      const data = await response.json();
+      
+      if (data && data.items) {
+        const cart = useCart.getState();
+        
+        // Clear current cart
+        cart.clearCart();
+        
+        // Add each item from server
+        const items = Array.isArray(data.items) ? data.items : [];
+        for (const item of items) {
+          const product: Product = {
+            id: item.productId,
+            name: item.name,
+            price: item.price,
+            minOrderQuantity: 1, // Default
+            category: '', // Not needed for cart
+            inStock: true, // Assume in stock
+            imageUrl: null,
+            description: null
+          };
+          
+          useCart.setState((state) => {
+            const newItems = { 
+              ...state.items, 
+              [item.productId]: {
+                productId: item.productId,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                subtotal: item.subtotal
+              } 
+            };
+            
+            return {
+              items: newItems,
+              totalItems: Object.values(newItems).reduce((sum, item) => sum + item.quantity, 0),
+              totalAmount: Object.values(newItems).reduce((sum, item) => sum + item.subtotal, 0)
+            };
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load cart from server:', error);
+    }
+  }
+};
