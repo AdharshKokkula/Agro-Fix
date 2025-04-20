@@ -297,7 +297,9 @@ export class MemStorage implements IStorage {
   async createOrder(order: InsertOrder): Promise<Order> {
     const id = this.orderIdCounter++;
     const now = new Date();
-    const orderNumber = `ORD-${nanoid(8)}`.toUpperCase();
+    const year = now.getFullYear();
+    // Format: AGF-YYYY-000001 (padded with leading zeros)
+    const orderNumber = `AGF-${year}-${id.toString().padStart(6, '0')}`;
     
     const newOrder: Order = { 
       id,
@@ -511,15 +513,23 @@ export class DatabaseStorage implements IStorage {
   }
   
   async createOrder(order: InsertOrder): Promise<Order> {
-    const now = new Date().toISOString();
-    const orderNumber = `ORD-${nanoid(8)}`.toUpperCase();
+    const now = new Date();
+    const year = now.getFullYear();
+    
+    // First, get the current highest order ID
+    const result = await db.select({ maxId: sql`MAX(id)` }).from(orders);
+    const maxId = result[0].maxId || 0;
+    const nextId = maxId + 1;
+    
+    // Format: AGF-YYYY-000001 (padded with leading zeros)
+    const orderNumber = `AGF-${year}-${nextId.toString().padStart(6, '0')}`;
     
     const [newOrder] = await db
       .insert(orders)
       .values({
         ...order,
         orderNumber,
-        createdAt: now
+        createdAt: now.toISOString()
       })
       .returning();
     

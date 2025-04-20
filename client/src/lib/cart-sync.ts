@@ -19,11 +19,15 @@ export function useCartSync() {
 }
 
 // This function attaches cart syncing to authenticated routes
-export function withCartSync<P>(Component: React.ComponentType<P>) {
-  return function WithCartSync(props: P) {
+export function withCartSync<P extends object>(
+  Component: React.ComponentType<P>
+): React.FC<P> {
+  const WithCartSync: React.FC<P> = (props) => {
     useCartSync();
-    return <Component {...props} />;
+    return React.createElement(Component, props);
   };
+  
+  return WithCartSync;
 }
 
 // Helper function to format order number with proper padding

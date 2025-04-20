@@ -19,54 +19,56 @@ import CartProvider from "@/components/CartProvider";
 function App() {
   return (
     <AuthProvider>
-      <TooltipProvider>
-        <div className="min-h-screen flex flex-col">
-          <Navbar />
-          <main className="flex-grow">
-            <Switch>
-              <Route path="/" component={HomePage} />
-              <Route path="/products" component={ProductsPage} />
-              <Route path="/auth" component={AuthPage} />
-              
-              {/* Protected routes for authenticated users */}
-              <Route path="/place-order">
-                <ProtectedRoute>
-                  <PlaceOrderPage />
-                </ProtectedRoute>
-              </Route>
-              
-              <Route path="/track-order">
-                <ProtectedRoute>
-                  <TrackOrderPage />
-                </ProtectedRoute>
-              </Route>
-              
-              {/* Protected routes for admins only */}
-              <Route path="/admin">
-                <ProtectedRoute requireAdmin={true}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              </Route>
-              
-              <Route path="/admin/orders">
-                <ProtectedRoute requireAdmin={true}>
-                  <AdminOrders />
-                </ProtectedRoute>
-              </Route>
-              
-              <Route path="/admin/products">
-                <ProtectedRoute requireAdmin={true}>
-                  <AdminProducts />
-                </ProtectedRoute>
-              </Route>
-              
-              <Route component={NotFound} />
-            </Switch>
-          </main>
-          <Footer />
-        </div>
-        <Toaster />
-      </TooltipProvider>
+      <CartProvider>
+        <TooltipProvider>
+          <div className="min-h-screen flex flex-col">
+            <Navbar />
+            <main className="flex-grow">
+              <Switch>
+                <Route path="/" component={HomePage} />
+                <Route path="/products" component={ProductsPage} />
+                <Route path="/auth" component={AuthPage} />
+                
+                {/* Protected routes for authenticated users */}
+                <Route path="/place-order">
+                  <ProtectedRoute>
+                    <PlaceOrderPage />
+                  </ProtectedRoute>
+                </Route>
+                
+                <Route path="/track-order">
+                  <ProtectedRoute>
+                    <TrackOrderPage />
+                  </ProtectedRoute>
+                </Route>
+                
+                {/* Protected routes for admins only */}
+                <Route path="/admin">
+                  <ProtectedRoute requireAdmin={true}>
+                    <AdminDashboard />
+                  </ProtectedRoute>
+                </Route>
+                
+                <Route path="/admin/orders">
+                  <ProtectedRoute requireAdmin={true}>
+                    <AdminOrders />
+                  </ProtectedRoute>
+                </Route>
+                
+                <Route path="/admin/products">
+                  <ProtectedRoute requireAdmin={true}>
+                    <AdminProducts />
+                  </ProtectedRoute>
+                </Route>
+                
+                <Route component={NotFound} />
+              </Switch>
+            </main>
+            <Footer />
+          </div>
+          <Toaster />
+        </TooltipProvider>
+      </CartProvider>
     </AuthProvider>
   );
 }
