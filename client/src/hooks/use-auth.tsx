@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext } from "react";
+import { createContext, ReactNode, useContext, useEffect } from "react";
 import {
   useQuery,
   useMutation,
@@ -42,10 +42,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     data: user,
     error,
     isLoading,
+    refetch
   } = useQuery<{ id: number; username: string; isAdmin: boolean } | null, Error>({
     queryKey: ["/api/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
   });
+  
+  // Check for token in localStorage on mount and refetch user data if present
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token && !user) {
+      // If we have a token but no user data, refetch user data
+      refetch();
+    }
+  }, [refetch, user]);
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {

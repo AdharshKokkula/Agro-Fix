@@ -32,9 +32,11 @@ export function ProtectedRoute({ children, requireAdmin = false }: ProtectedRout
         <p className="text-lg text-center mb-6">
           You do not have permission to access this page. Admin privileges are required.
         </p>
-        <a href="/" className="py-2 px-4 bg-primary text-white rounded-md hover:bg-primary/90">
-          Return to Homepage
-        </a>
+        <Link href="/">
+          <span className="py-2 px-4 bg-primary text-white rounded-md hover:bg-primary/90 cursor-pointer inline-block">
+            Return to Homepage
+          </span>
+        </Link>
       </div>
     );
   }

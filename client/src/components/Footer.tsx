@@ -36,17 +36,17 @@ const Footer = () => {
             <ul className="space-y-2">
               <li>
                 <Link href="/products">
-                  <a className="text-gray-400 hover:text-white">Products</a>
+                  <span className="text-gray-400 hover:text-white cursor-pointer">Products</span>
                 </Link>
               </li>
               <li>
                 <Link href="/place-order">
-                  <a className="text-gray-400 hover:text-white">Place Order</a>
+                  <span className="text-gray-400 hover:text-white cursor-pointer">Place Order</span>
                 </Link>
               </li>
               <li>
                 <Link href="/track-order">
-                  <a className="text-gray-400 hover:text-white">Track Order</a>
+                  <span className="text-gray-400 hover:text-white cursor-pointer">Track Order</span>
                 </Link>
               </li>
               <li>
