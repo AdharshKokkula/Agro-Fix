@@ -95,7 +95,7 @@ export default function AuthPage() {
                   <CardFooter>
                     <Button 
                       type="submit" 
-                      className="w-full" 
+                      className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700" 
                       disabled={loginMutation.isPending}
                     >
                       {loginMutation.isPending ? (
@@ -157,11 +157,32 @@ export default function AuthPage() {
                         <p className="text-sm text-red-500">{passwordError}</p>
                       )}
                     </div>
+                    <div className="flex items-center space-x-2 mt-4 p-3 bg-green-50 border border-green-100 rounded-md">
+                      <Checkbox 
+                        id="register-admin"
+                        checked={registerData.isAdmin}
+                        onCheckedChange={(checked) => 
+                          setRegisterData({...registerData, isAdmin: checked === true})
+                        }
+                        className="border-green-500 data-[state=checked]:bg-green-600"
+                      />
+                      <div className="grid gap-1.5 leading-none">
+                        <Label 
+                          htmlFor="register-admin"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-green-800"
+                        >
+                          Register as Administrator
+                        </Label>
+                        <p className="text-xs text-green-600">
+                          Create an admin account with management privileges
+                        </p>
+                      </div>
+                    </div>
                   </CardContent>
                   <CardFooter>
                     <Button 
                       type="submit" 
-                      className="w-full" 
+                      className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700" 
                       disabled={registerMutation.isPending}
                     >
                       {registerMutation.isPending ? (
