@@ -5,12 +5,18 @@ import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
-import { User } from "@shared/schema";
+import { User as UserSchema } from "@shared/schema";
 import jwt from "jsonwebtoken";
 
 declare global {
   namespace Express {
-    interface User extends User {}
+    // Define User interface in Express namespace
+    interface User {
+      id: number;
+      username: string;
+      password: string;
+      isAdmin: boolean;
+    }
   }
 }
 
@@ -48,7 +54,7 @@ export async function comparePasswords(supplied: string, stored: string): Promis
 }
 
 // Generate JWT token
-export const generateToken = (user: User): string => {
+export const generateToken = (user: Express.User): string => {
   return jwt.sign(
     { id: user.id, username: user.username, isAdmin: user.isAdmin },
     JWT_SECRET,
@@ -137,7 +143,7 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req: Request, res: Response, next: NextFunction) => {
-    passport.authenticate("local", (err: Error, user: User, info: any) => {
+    passport.authenticate("local", (err: Error, user: Express.User, info: any) => {
       if (err) return next(err);
       if (!user) {
         return res.status(401).json({ message: info?.message || "Authentication failed" });

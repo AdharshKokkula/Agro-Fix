@@ -4,8 +4,12 @@ import { storage } from "./storage";
 import { insertProductSchema, insertOrderSchema } from "@shared/schema";
 import { ZodError } from "zod";
 import { fromZodError } from "zod-validation-error";
+import { setupAuth, isAuthenticated, isAdmin } from "./auth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication
+  setupAuth(app);
+
   // Helper function to handle validation errors
   const validateRequest = (schema: any, data: any) => {
     try {
@@ -46,7 +50,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/products", async (req: Request, res: Response) => {
+  app.post("/api/products", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
     try {
       const { data, error } = validateRequest(insertProductSchema, req.body);
       if (error) {
@@ -60,7 +64,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/products/:id", async (req: Request, res: Response) => {
+  app.put("/api/products/:id", isAuthenticated, isAdmin, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       if (isNaN(id)) {
