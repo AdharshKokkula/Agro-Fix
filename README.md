@@ -245,12 +245,41 @@ Order tracking provides visibility into the fulfillment process:
 
 ## Deployment
 
-This application can be deployed to any hosting service that supports Node.js applications. For PostgreSQL, you can use services like:
+### Deploying to Vercel
 
-- Heroku
-- Railway
-- Digital Ocean
-- AWS
+1. Make sure you have the Vercel CLI installed:
+   ```bash
+   npm install -g vercel
+   ```
+
+2. Log in to Vercel:
+   ```bash
+   vercel login
+   ```
+
+3. Deploy the application:
+   ```bash
+   vercel
+   ```
+
+4. Set up environment variables in the Vercel dashboard:
+   - `DATABASE_URL`: Your PostgreSQL connection string
+   - `SESSION_SECRET`: A secure random string for session encryption
+
+5. For production deployments:
+   ```bash
+   vercel --prod
+   ```
+
+### Database Setup for Vercel Deployment
+
+For production deployment, it's recommended to use a managed PostgreSQL service like:
+
+- [Neon](https://neon.tech/) (recommended)
+- [Supabase](https://supabase.com/)
+- [Railway](https://railway.app/)
+- [AWS RDS](https://aws.amazon.com/rds/)
+- [DigitalOcean Managed Databases](https://www.digitalocean.com/products/managed-databases)
 
 ## Future Enhancements
 

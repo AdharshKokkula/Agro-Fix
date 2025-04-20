@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "buildCommand": "bash ./build.sh",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/**": {
+      "memory": 1024
+    }
+  },
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.js" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+}
