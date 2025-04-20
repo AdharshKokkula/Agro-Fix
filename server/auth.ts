@@ -203,6 +203,10 @@ export function setupAuth(app: Express) {
 
   app.get("/api/user", isAuthenticated, (req: Request, res: Response) => {
     const { id, username, isAdmin } = req.user!;
-    res.json({ id, username, isAdmin });
+    res.json({ 
+      id, 
+      username, 
+      isAdmin: !!isAdmin // Make sure isAdmin is boolean
+    });
   });
 }
