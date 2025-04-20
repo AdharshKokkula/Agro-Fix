@@ -31,45 +31,55 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <Card className="overflow-hidden shadow-md transition-transform hover:shadow-lg hover:-translate-y-1">
-      <div className="h-48 bg-gray-200 relative">
+    <Card className="overflow-hidden border border-gray-100 rounded-lg shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-1 group">
+      <div className="h-52 bg-gray-200 relative overflow-hidden">
         <img 
-          src={product.imageUrl} 
+          src={product.imageUrl || 'https://via.placeholder.com/400x300/f3f4f6/70787a?text=Product+Image'} 
           alt={product.name} 
-          className="w-full h-full object-cover" 
+          className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500" 
         />
-        <div className="absolute top-2 right-2 bg-primary-500 text-white text-xs font-bold px-2 py-1 rounded">
+        <div className={`absolute top-3 right-3 ${product.inStock ? 'bg-green-500' : 'bg-red-500'} text-white text-xs font-bold px-3 py-1 rounded-full shadow-md`}>
           {product.inStock ? "In Stock" : "Out of Stock"}
         </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
       </div>
       
-      <CardContent className="p-4">
-        <h3 className="text-lg font-semibold text-gray-900 mb-1">{product.name}</h3>
-        <div className="flex items-center text-gray-600 text-sm mb-2">
-          <span className="bg-gray-100 px-2 py-1 rounded mr-2">{product.category}</span>
-          <span>Min. Order: {product.minOrderQuantity}kg</span>
-        </div>
-        <div className="mb-3">
-          <span className="text-xl font-bold text-gray-900">{formatCurrency(product.price / 100)}</span>
-          <span className="text-gray-600 text-sm"> / kg</span>
-        </div>
-        <div className="flex items-center justify-between">
-          <Button 
-            onClick={handleAddToCart}
-            className="bg-primary-600 hover:bg-primary-700 text-white"
-            disabled={!product.inStock}
-          >
-            Add to Order
-          </Button>
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between mb-2">
+          <h3 className="text-lg font-semibold text-gray-900 group-hover:text-primary-600 transition-colors">{product.name}</h3>
           <Button 
             variant="ghost" 
             size="icon" 
             onClick={toggleWishlist}
-            className={`text-gray-500 hover:text-gray-700 ${isWishlisted ? 'text-red-500 hover:text-red-600' : ''}`}
+            className={`text-gray-400 hover:text-red-500 hover:bg-red-50 ${isWishlisted ? 'text-red-500 bg-red-50' : ''} rounded-full h-8 w-8 p-0`}
           >
-            <Heart className={`h-5 w-5 ${isWishlisted ? 'fill-current' : ''}`} />
+            <Heart className={`h-5 w-5 ${isWishlisted ? 'fill-current' : ''} transition-all`} />
           </Button>
         </div>
+        
+        <div className="flex items-center text-gray-600 text-sm mb-3">
+          <span className="bg-primary-50 text-primary-700 px-2 py-1 rounded-full mr-2">{product.category}</span>
+          <span className="bg-gray-100 px-2 py-1 rounded-full">Min: {product.minOrderQuantity}kg</span>
+        </div>
+        
+        {product.description && (
+          <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
+        )}
+        
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <span className="text-xl font-bold text-primary-700">{formatCurrency(product.price / 100)}</span>
+            <span className="text-gray-600 text-sm"> / kg</span>
+          </div>
+        </div>
+        
+        <Button 
+          onClick={handleAddToCart}
+          className="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium transition-colors shadow hover:shadow-md"
+          disabled={!product.inStock}
+        >
+          {product.inStock ? "Add to Order" : "Out of Stock"}
+        </Button>
       </CardContent>
     </Card>
   );
