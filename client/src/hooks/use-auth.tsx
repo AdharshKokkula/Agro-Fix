@@ -62,11 +62,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await apiRequest("POST", "/api/login", credentials);
       return await res.json();
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       queryClient.setQueryData(["/api/user"], data.user);
       
       // Store JWT token in localStorage for persistent auth
       localStorage.setItem("authToken", data.token);
+      
+      // Load cart data from server
+      try {
+        const { loadCartFromServer } = await import('@/store/cart');
+        await loadCartFromServer();
+      } catch (error) {
+        console.error('Failed to load cart data:', error);
+      }
       
       toast({
         title: "Login successful",
@@ -94,11 +102,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await apiRequest("POST", "/api/register", data);
       return await res.json();
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       queryClient.setQueryData(["/api/user"], data.user);
       
       // Store JWT token in localStorage for persistent auth
       localStorage.setItem("authToken", data.token);
+      
+      // Initialize an empty cart for new users
+      try {
+        const { useCart } = await import('@/store/cart');
+        const cart = useCart.getState();
+        cart.clearCart();
+      } catch (error) {
+        console.error('Failed to initialize cart:', error);
+      }
       
       toast({
         title: "Registration successful",
