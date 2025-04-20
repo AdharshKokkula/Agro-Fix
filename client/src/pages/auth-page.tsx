@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,7 +12,12 @@ import { Loader2 } from "lucide-react";
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<string>("login");
   const [loginData, setLoginData] = useState({ username: "", password: "" });
-  const [registerData, setRegisterData] = useState({ username: "", password: "", confirmPassword: "" });
+  const [registerData, setRegisterData] = useState({ 
+    username: "", 
+    password: "", 
+    confirmPassword: "", 
+    isAdmin: false 
+  });
   const [passwordError, setPasswordError] = useState("");
   
   const { user, loginMutation, registerMutation } = useAuth();
@@ -38,7 +44,8 @@ export default function AuthPage() {
     setPasswordError("");
     registerMutation.mutate({
       username: registerData.username,
-      password: registerData.password
+      password: registerData.password,
+      isAdmin: registerData.isAdmin
     });
   };
 

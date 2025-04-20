@@ -39,25 +39,23 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="md:flex items-center justify-between">
             <div className="md:w-1/2 mb-8 md:mb-0">
-              <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight drop-shadow-md">
-                <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-100 via-green-200 to-emerald-100">
-                  Fresh Produce at Wholesale Prices
-                </span>
+              <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight drop-shadow-md text-primary-900 bg-gradient-to-r from-primary-600 via-primary-500 to-primary-700 bg-clip-text">
+                Fresh Produce at Wholesale Prices
               </h1>
-              <p className="text-lg md:text-xl mb-10 text-white leading-relaxed">
+              <p className="text-lg md:text-xl mb-10 text-gray-700 leading-relaxed">
                 Order bulk vegetables and fruits directly from farms to your
                 business at competitive prices.
               </p>
               <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
                 <Link href="/products">
-                  <Button className="bg-white text-green-700 hover:bg-gray-100 w-full sm:w-auto font-medium px-6 py-2.5 shadow-lg transition-all">
+                  <Button className="bg-gradient-to-r from-primary-600 via-primary-500 to-primary-700 text-white hover:bg-gray-100 hover:text-green-600 w-full sm:w-auto font-medium px-6 py-2.5 shadow-lg transition-all border-green-500">
                     Browse Products
                   </Button>
                 </Link>
                 <Link href="/place-order">
                   <Button
                     variant="outline"
-                    className="border-2 border-white text-white hover:bg-white/20 w-full sm:w-auto font-medium px-6 py-2.5 transition-all"
+                    className="bg-gradient-to-r from-primary-600 via-primary-500 to-primary-700 text-green-600 hover:bg-green-600 hover:text-white w-full sm:w-auto font-medium px-6 py-2.5 transition-all border-green-500"
                   >
                     Place Bulk Order
                   </Button>

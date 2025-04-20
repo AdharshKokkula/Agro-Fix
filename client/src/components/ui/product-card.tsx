@@ -75,7 +75,7 @@ export function ProductCard({ product }: ProductCardProps) {
         
         <Button 
           onClick={handleAddToCart}
-          className="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium transition-colors shadow hover:shadow-md"
+          className="w-full bg-green-500 hover:bg-green-700 text-white hover:text-gray-100 font-medium transition-colors shadow hover:shadow-md"
           disabled={!product.inStock}
         >
           {product.inStock ? "Add to Order" : "Out of Stock"}
