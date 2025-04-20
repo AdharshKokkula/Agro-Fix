@@ -11,7 +11,12 @@ export function cn(...inputs: ClassValue[]) {
 /**
  * Formats a number as currency
  */
-export function formatCurrency(amount: number, currency = "₹") {
+export function formatCurrency(amount: number | null | undefined, currency = "₹") {
+  // Handle null or undefined amounts
+  if (amount === null || amount === undefined) {
+    return `${currency}0.00`;
+  }
+  
   return `${currency}${amount.toLocaleString("en-IN", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,

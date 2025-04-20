@@ -61,7 +61,7 @@ export default function PlaceOrderPage() {
   const createOrderMutation = useMutation({
     mutationFn: async (data: OrderFormData) => {
       // Convert cart items to order items
-      const cartItems = Object.entries(items).map(([productId, item]) => {
+      const cartItems = Object.entries(items || {}).map(([productId, item]) => {
         const product = products?.find(p => p.id === parseInt(productId));
         if (!product) throw new Error(`Product with ID ${productId} not found`);
         
@@ -69,8 +69,8 @@ export default function PlaceOrderPage() {
           productId: product.id,
           name: product.name,
           price: product.price,
-          quantity: item.quantity,
-          subtotal: product.price * item.quantity
+          quantity: item.quantity || 0,
+          subtotal: product.price * (item.quantity || 0)
         };
       });
       
@@ -81,7 +81,7 @@ export default function PlaceOrderPage() {
       const orderData = {
         ...data,
         items: cartItems,
-        totalAmount: totalAmount * 100, // Convert to cents
+        totalAmount: (totalAmount || 0) * 100, // Convert to cents
       };
       
       const response = await apiRequest("POST", "/api/orders", orderData);
@@ -257,11 +257,11 @@ export default function PlaceOrderPage() {
           <h3 className="text-xl font-semibold mb-4">Select Products</h3>
           
           {/* Current Cart */}
-          {Object.keys(items).length > 0 && (
+          {Object.keys(items || {}).length > 0 && (
             <div className="mb-8 border rounded-lg p-4 bg-gray-50">
               <h4 className="text-lg font-medium mb-3">Your Current Order</h4>
               <div className="divide-y divide-gray-200">
-                {Object.entries(items).map(([productId, item]) => {
+                {Object.entries(items || {}).map(([productId, item]) => {
                   const product = products?.find(p => p.id === parseInt(productId));
                   if (!product) return null;
                   
@@ -269,7 +269,7 @@ export default function PlaceOrderPage() {
                     <CartItem 
                       key={productId} 
                       product={product} 
-                      quantity={item.quantity} 
+                      quantity={item.quantity || 0} 
                     />
                   );
                 })}
@@ -278,7 +278,7 @@ export default function PlaceOrderPage() {
               <div className="mt-4 pt-4 border-t border-gray-200">
                 <div className="flex justify-between text-lg font-bold">
                   <span>Total</span>
-                  <span>{formatCurrency(totalAmount)}</span>
+                  <span>{formatCurrency(totalAmount || 0)}</span>
                 </div>
               </div>
             </div>
@@ -366,7 +366,7 @@ export default function PlaceOrderPage() {
             ) : (
               <div className="border rounded-lg">
                 <div className="divide-y divide-gray-200">
-                  {Object.entries(items).map(([productId, item]) => {
+                  {Object.entries(items || {}).map(([productId, item]) => {
                     const product = products?.find(p => p.id === parseInt(productId));
                     if (!product) return null;
                     
@@ -374,7 +374,7 @@ export default function PlaceOrderPage() {
                       <CartItem 
                         key={productId} 
                         product={product} 
-                        quantity={item.quantity} 
+                        quantity={item.quantity || 0} 
                       />
                     );
                   })}
@@ -383,7 +383,7 @@ export default function PlaceOrderPage() {
                 <div className="p-4 bg-gray-50 border-t border-gray-200">
                   <div className="flex justify-between mb-2">
                     <span className="text-gray-600">Subtotal</span>
-                    <span className="font-medium text-gray-900">{formatCurrency(totalAmount)}</span>
+                    <span className="font-medium text-gray-900">{formatCurrency(totalAmount || 0)}</span>
                   </div>
                   <div className="flex justify-between mb-2">
                     <span className="text-gray-600">Delivery Fee</span>
@@ -391,7 +391,7 @@ export default function PlaceOrderPage() {
                   </div>
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total</span>
-                    <span>{formatCurrency(totalAmount + 200)}</span>
+                    <span>{formatCurrency((totalAmount || 0) + 200)}</span>
                   </div>
                 </div>
               </div>
