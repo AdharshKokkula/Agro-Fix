@@ -11,28 +11,62 @@ import AdminDashboard from "@/pages/admin/dashboard";
 import AdminOrders from "@/pages/admin/orders";
 import AdminProducts from "@/pages/admin/products";
 import NotFound from "@/pages/not-found";
+import AuthPage from "@/pages/auth-page";
+import { AuthProvider } from "@/hooks/use-auth";
+import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 function App() {
   return (
-    <TooltipProvider>
-      <div className="min-h-screen flex flex-col">
-        <Navbar />
-        <main className="flex-grow">
-          <Switch>
-            <Route path="/" component={HomePage} />
-            <Route path="/products" component={ProductsPage} />
-            <Route path="/place-order" component={PlaceOrderPage} />
-            <Route path="/track-order" component={TrackOrderPage} />
-            <Route path="/admin" component={AdminDashboard} />
-            <Route path="/admin/orders" component={AdminOrders} />
-            <Route path="/admin/products" component={AdminProducts} />
-            <Route component={NotFound} />
-          </Switch>
-        </main>
-        <Footer />
-      </div>
-      <Toaster />
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <div className="min-h-screen flex flex-col">
+          <Navbar />
+          <main className="flex-grow">
+            <Switch>
+              <Route path="/" component={HomePage} />
+              <Route path="/products" component={ProductsPage} />
+              <Route path="/auth" component={AuthPage} />
+              
+              {/* Protected routes for authenticated users */}
+              <Route path="/place-order">
+                <ProtectedRoute>
+                  <PlaceOrderPage />
+                </ProtectedRoute>
+              </Route>
+              
+              <Route path="/track-order">
+                <ProtectedRoute>
+                  <TrackOrderPage />
+                </ProtectedRoute>
+              </Route>
+              
+              {/* Protected routes for admins only */}
+              <Route path="/admin">
+                <ProtectedRoute requireAdmin={true}>
+                  <AdminDashboard />
+                </ProtectedRoute>
+              </Route>
+              
+              <Route path="/admin/orders">
+                <ProtectedRoute requireAdmin={true}>
+                  <AdminOrders />
+                </ProtectedRoute>
+              </Route>
+              
+              <Route path="/admin/products">
+                <ProtectedRoute requireAdmin={true}>
+                  <AdminProducts />
+                </ProtectedRoute>
+              </Route>
+              
+              <Route component={NotFound} />
+            </Switch>
+          </main>
+          <Footer />
+        </div>
+        <Toaster />
+      </TooltipProvider>
+    </AuthProvider>
   );
 }
 
