@@ -1,6 +1,15 @@
-import { type Order, type Product, type InsertOrder, type InsertProduct } from "@shared/schema";
+import { type Order, type Product, type InsertOrder, type InsertProduct, type User, type InsertUser } from "@shared/schema";
+import session from "express-session";
+import createMemoryStore from "memorystore";
+
+const MemoryStore = createMemoryStore(session);
 
 export interface IStorage {
+  // User operations
+  getUser(id: number): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  createUser(user: InsertUser): Promise<User>;
+  
   // Product operations
   getProducts(): Promise<Product[]>;
   getProduct(id: number): Promise<Product | undefined>;
@@ -13,19 +22,30 @@ export interface IStorage {
   getOrder(id: number): Promise<Order | undefined>;
   createOrder(order: InsertOrder): Promise<Order>;
   updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
+  
+  // Session store
+  sessionStore: session.Store;
 }
 
 export class MemStorage implements IStorage {
+  private users: Map<number, User>;
   private products: Map<number, Product>;
   private orders: Map<number, Order>;
+  private userIdCounter: number;
   private productIdCounter: number;
   private orderIdCounter: number;
+  public sessionStore: session.Store;
 
   constructor() {
+    this.users = new Map();
     this.products = new Map();
     this.orders = new Map();
+    this.userIdCounter = 1;
     this.productIdCounter = 1;
     this.orderIdCounter = 1;
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000 // 24 hours
+    });
     
     // Initialize with sample products
     this.initializeProducts();
@@ -136,6 +156,22 @@ export class MemStorage implements IStorage {
     const updatedOrder = { ...existingOrder, status };
     this.orders.set(id, updatedOrder);
     return updatedOrder;
+  }
+
+  // User operations
+  async getUser(id: number): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.username === username);
+  }
+
+  async createUser(user: InsertUser): Promise<User> {
+    const id = this.userIdCounter++;
+    const newUser: User = { id, ...user };
+    this.users.set(id, newUser);
+    return newUser;
   }
 }
 
