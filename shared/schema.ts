@@ -46,7 +46,7 @@ export const orders = pgTable("orders", {
   items: json("items").notNull(), // Serialized JSON array of order items
   status: text("status").notNull().default("Pending"), // Pending, In Progress, Out for Delivery, Delivered
   totalAmount: integer("total_amount").notNull(), // Total amount in cents
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: text("created_at"),
 });
 
 export const insertOrderSchema = createInsertSchema(orders).omit({

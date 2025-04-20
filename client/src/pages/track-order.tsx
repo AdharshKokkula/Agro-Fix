@@ -58,19 +58,28 @@ export default function TrackOrderPage() {
   };
 
   const getOrderTimelineEvents = (order: Order) => {
+    // Make sure createdAt is a valid date
+    const createdAtDate = order.createdAt ? new Date(order.createdAt) : new Date();
+    
+    // Helper function to format date safely
+    const formatDate = (date: Date | null, formatString: string): string => {
+      return date ? format(date, formatString) : "";
+    };
+    
+    // Create event timeline with correct date handling
     const events = [
       {
         status: "Order Placed",
-        date: format(new Date(order.createdAt), "PP"),
-        time: format(new Date(order.createdAt), "p"),
+        date: formatDate(createdAtDate, "PP"),
+        time: formatDate(createdAtDate, "p"),
         description: "Your order has been received and is being processed.",
         isCompleted: true,
         isCurrent: order.status === "Pending"
       },
       {
         status: "Order Confirmed",
-        date: format(new Date(order.createdAt), "PP"),
-        time: format(new Date(new Date(order.createdAt).getTime() + 60 * 60 * 1000), "p"),
+        date: formatDate(createdAtDate, "PP"),
+        time: formatDate(new Date(createdAtDate.getTime() + 60 * 60 * 1000), "p"),
         description: "Your order has been confirmed and is being prepared for shipment.",
         isCompleted: ["In Progress", "Out for Delivery", "Delivered"].includes(order.status),
         isCurrent: order.status === "Pending"
@@ -78,10 +87,10 @@ export default function TrackOrderPage() {
       {
         status: "In Progress",
         date: ["In Progress", "Out for Delivery", "Delivered"].includes(order.status) 
-          ? format(new Date(new Date(order.createdAt).getTime() + 24 * 60 * 60 * 1000), "PP") 
+          ? formatDate(new Date(createdAtDate.getTime() + 24 * 60 * 60 * 1000), "PP") 
           : "",
         time: ["In Progress", "Out for Delivery", "Delivered"].includes(order.status)
-          ? format(new Date(new Date(order.createdAt).getTime() + 24 * 60 * 60 * 1000), "p")
+          ? formatDate(new Date(createdAtDate.getTime() + 24 * 60 * 60 * 1000), "p")
           : "",
         description: "Your order is currently being packaged and prepared for delivery.",
         isCompleted: ["Out for Delivery", "Delivered"].includes(order.status),
@@ -90,10 +99,10 @@ export default function TrackOrderPage() {
       {
         status: "Out for Delivery",
         date: ["Out for Delivery", "Delivered"].includes(order.status)
-          ? format(new Date(new Date(order.createdAt).getTime() + 2 * 24 * 60 * 60 * 1000), "PP")
+          ? formatDate(new Date(createdAtDate.getTime() + 2 * 24 * 60 * 60 * 1000), "PP")
           : "",
         time: ["Out for Delivery", "Delivered"].includes(order.status)
-          ? format(new Date(new Date(order.createdAt).getTime() + 2 * 24 * 60 * 60 * 1000), "p")
+          ? formatDate(new Date(createdAtDate.getTime() + 2 * 24 * 60 * 60 * 1000), "p")
           : "",
         description: "Your order is on its way to your delivery address.",
         isCompleted: order.status === "Delivered",
@@ -102,10 +111,10 @@ export default function TrackOrderPage() {
       {
         status: "Delivered",
         date: order.status === "Delivered"
-          ? format(new Date(new Date(order.createdAt).getTime() + 3 * 24 * 60 * 60 * 1000), "PP")
+          ? formatDate(new Date(createdAtDate.getTime() + 3 * 24 * 60 * 60 * 1000), "PP")
           : "",
         time: order.status === "Delivered"
-          ? format(new Date(new Date(order.createdAt).getTime() + 3 * 24 * 60 * 60 * 1000), "p")
+          ? formatDate(new Date(createdAtDate.getTime() + 3 * 24 * 60 * 60 * 1000), "p")
           : "",
         description: "Your order has been delivered successfully.",
         isCompleted: order.status === "Delivered",
@@ -132,7 +141,7 @@ export default function TrackOrderPage() {
                   type="text"
                   value={orderId}
                   onChange={(e) => setOrderId(e.target.value)}
-                  placeholder="e.g. ORD-12345"
+                  placeholder="Enter your order number"
                 />
               </div>
               <div>
@@ -159,7 +168,7 @@ export default function TrackOrderPage() {
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h3 className="text-xl font-semibold text-gray-900">Order #ORD-{order.id}</h3>
-                    <p className="text-gray-600">Placed on: {format(new Date(order.createdAt), "PP")}</p>
+                    <p className="text-gray-600">Placed on: {order.createdAt ? format(new Date(order.createdAt), "PP") : "Unknown date"}</p>
                   </div>
                   <OrderStatusBadge status={order.status} />
                 </div>

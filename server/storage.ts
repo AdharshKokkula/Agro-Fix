@@ -1,6 +1,12 @@
-import { type Order, type Product, type InsertOrder, type InsertProduct, type User, type InsertUser } from "@shared/schema";
+import { drizzle } from "drizzle-orm/postgres-js";
+import { sql } from "drizzle-orm";
 import session from "express-session";
 import createMemoryStore from "memorystore";
+import { 
+  User, InsertUser, 
+  Product, InsertProduct,
+  Order, InsertOrder 
+} from "@shared/schema";
 
 const MemoryStore = createMemoryStore(session);
 
@@ -49,6 +55,84 @@ export class MemStorage implements IStorage {
     
     // Initialize with sample products
     this.initializeProducts();
+    
+    // Create admin user
+    this.initializeAdminUser();
+  }
+  
+  private async initializeAdminUser() {
+    try {
+      // Check if admin already exists
+      const existingAdmin = Array.from(this.users.values()).find(user => user.isAdmin);
+      if (existingAdmin) return;
+      
+      // Import hashPassword function from auth.ts
+      const { hashPassword } = await import('./auth');
+      
+      // Create admin user with fixed credentials
+      const adminUser: InsertUser = {
+        username: "admin",
+        password: await hashPassword("admin123"),
+        isAdmin: true
+      };
+      
+      await this.createUser(adminUser);
+      console.log("Admin user created successfully");
+      
+      // Create sample order after admin is created
+      setTimeout(() => this.createSampleOrder(), 1000);
+    } catch (error) {
+      console.error("Error creating admin user:", error);
+    }
+  }
+  
+  private async createSampleOrder() {
+    try {
+      // Check if orders already exist
+      if (this.orders.size > 0) return;
+      
+      // Get some products
+      const products = await this.getProducts();
+      if (products.length === 0) return;
+      
+      // Create a sample order
+      const sampleOrder: InsertOrder = {
+        buyerName: "Sample Customer",
+        businessName: "Demo Restaurant",
+        email: "customer@example.com",
+        phone: "1234567890",
+        deliveryAddress: "123 Sample Street",
+        city: "Demo City",
+        state: "Sample State",
+        pincode: "123456",
+        deliveryInstructions: "Leave at reception",
+        preferredDeliveryDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days in future
+        items: [
+          {
+            productId: products[0].id,
+            name: products[0].name,
+            price: products[0].price,
+            quantity: products[0].minOrderQuantity,
+            subtotal: products[0].price * products[0].minOrderQuantity
+          },
+          {
+            productId: products[1].id,
+            name: products[1].name,
+            price: products[1].price,
+            quantity: products[1].minOrderQuantity,
+            subtotal: products[1].price * products[1].minOrderQuantity
+          }
+        ],
+        totalAmount: (products[0].price * products[0].minOrderQuantity) + 
+                     (products[1].price * products[1].minOrderQuantity),
+        status: "In Progress"
+      };
+      
+      const order = await this.createOrder(sampleOrder);
+      console.log(`Sample order created with ID: ${order.id}`);
+    } catch (error) {
+      console.error("Error creating sample order:", error);
+    }
   }
 
   private initializeProducts() {
@@ -161,7 +245,7 @@ export class MemStorage implements IStorage {
       items: order.items,
       status: order.status ?? "Pending",
       totalAmount: order.totalAmount,
-      createdAt: now
+      createdAt: now.toISOString()
     };
     
     this.orders.set(id, newOrder);
