@@ -1,50 +1,29 @@
-// Serverless function for Vercel
+// api/index.js - Serverless entry point for Vercel deployment
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import express from 'express';
 import cors from 'cors';
-import path from 'path';
-import { setupAuth } from '../server/auth.js';
-import { initializeDatabase } from '../server/db.js';
-import { registerRoutes } from '../server/routes.js';
+import { json } from 'express';
 
-// Create Express app
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Create Express server
 const app = express();
-
-// Middlewares
 app.use(cors());
-app.use(express.json());
+app.use(json());
 
-// Initialize database
-async function init() {
-  try {
-    await initializeDatabase();
-    console.log('Database initialized successfully');
-  } catch (error) {
-    console.error('Database initialization failed:', error);
-  }
-}
+// Import server bundle and initialize routes
+import('../dist/index.js')
+  .then(module => {
+    console.log('✅ Server initialized successfully');
+  })
+  .catch(err => {
+    console.error('❌ Failed to initialize server:', err);
+  });
 
-// Setup auth and routes
-init().then(() => {
-  // Setup authentication
-  setupAuth(app);
-});
-
-// Handle API requests
-app.all('*', async (req, res) => {
-  try {
-    // Setup authentication
-    setupAuth(app);
-    
-    // Register routes
-    await registerRoutes(app);
-    
-    // Let Express handle the request
-    app._router.handle(req, res);
-  } catch (error) {
-    console.error('Error handling request:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-// Export for Vercel
+// Export the Express API for Vercel serverless functions
 export default app;

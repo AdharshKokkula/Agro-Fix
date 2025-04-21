@@ -1,5 +1,5 @@
-// A specialized vite.config.js for the client directory
-// This ensures proper path resolution during the build process
+// vite.config.js for client directory
+// Specialized for Vercel deployment with proper path resolution
 
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
@@ -9,7 +9,8 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "src"),
+      // We're explicitly NOT using @ aliases to avoid build issues
+      // Instead we use relative paths for all imports
       "@shared": path.resolve(__dirname, "../shared"),
       "@assets": path.resolve(__dirname, "../attached_assets"),
     },
@@ -17,5 +18,9 @@ export default defineConfig({
   build: {
     outDir: path.resolve(__dirname, "../dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      // Explicitly set external to avoid the @ path resolution errors
+      external: [],
+    },
   },
 });

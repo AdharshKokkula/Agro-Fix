@@ -1,20 +1,20 @@
 import { Switch, Route } from "wouter";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import HomePage from "@/pages/home";
-import ProductsPage from "@/pages/products";
-import PlaceOrderPage from "@/pages/place-order";
-import TrackOrderPage from "@/pages/track-order";
-import AdminDashboard from "@/pages/admin/dashboard";
-import AdminOrders from "@/pages/admin/orders";
-import AdminProducts from "@/pages/admin/products";
-import NotFound from "@/pages/not-found";
-import AuthPage from "@/pages/auth-page";
-import { AuthProvider } from "@/hooks/use-auth";
-import { ProtectedRoute } from "@/components/ProtectedRoute";
-import CartProvider from "@/components/CartProvider";
+import { Toaster } from "./components/ui/toaster";
+import { TooltipProvider } from "./components/ui/tooltip";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import HomePage from "./pages/home";
+import ProductsPage from "./pages/products";
+import PlaceOrderPage from "./pages/place-order";
+import TrackOrderPage from "./pages/track-order";
+import AdminDashboard from "./pages/admin/dashboard";
+import AdminOrders from "./pages/admin/orders";
+import AdminProducts from "./pages/admin/products";
+import NotFound from "./pages/not-found";
+import AuthPage from "./pages/auth-page";
+import { AuthProvider } from "./hooks/use-auth";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import CartProvider from "./components/CartProvider";
 
 function App() {
   return (
