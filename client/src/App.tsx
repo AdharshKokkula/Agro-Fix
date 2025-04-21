@@ -1,5 +1,4 @@
 import { Switch, Route } from "wouter";
-import { Toaster } from "./components/ui/toaster";
 import { TooltipProvider } from "./components/ui/tooltip";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -66,7 +65,6 @@ function App() {
             </main>
             <Footer />
           </div>
-          <Toaster />
         </TooltipProvider>
       </CartProvider>
     </AuthProvider>

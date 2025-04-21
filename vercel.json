@@ -4,7 +4,8 @@
   "outputDirectory": "dist/public",
   "installCommand": "npm install",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/index.js" }
+    { "source": "/api/(.*)", "destination": "/api/index.js" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "headers": [
     {
@@ -27,7 +28,6 @@
     }
   },
   "env": {
-    "NODE_ENV": "production",
-    "NODE_OPTIONS": "--enable-source-maps"
+    "NODE_ENV": "production"
   }
 }

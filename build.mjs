@@ -1,5 +1,5 @@
-// build.mjs - Custom build script for Vercel deployment
-import { exec, execSync } from 'child_process';
+// build.mjs - Simplified build script for Vercel deployment
+import { exec } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-console.log('🔨 Starting custom build process for Vercel deployment...');
+console.log('🔨 Starting simplified build process for Vercel deployment...');
 
 // Helper function to run commands
 function runCommand(command, cwd = __dirname) {
@@ -33,77 +33,62 @@ function ensureDir(dir) {
   }
 }
 
-// Manual fixes for critical files
-function manuallyFixCriticalFiles() {
-  // Fix main.tsx
-  const mainTsxPath = path.join(__dirname, 'client', 'src', 'main.tsx');
-  if (fs.existsSync(mainTsxPath)) {
-    let content = fs.readFileSync(mainTsxPath, 'utf8');
-    content = content.replace(
-      'import { Toaster } from "@/components/ui/toaster";',
-      'import { Toaster } from "./components/ui/toaster";'
-    );
-    fs.writeFileSync(mainTsxPath, content);
-    console.log('✅ Fixed main.tsx');
+// Fix path aliases in all files
+function fixPathAliases() {
+  console.log('🔧 Removing all @/ path references in source files...');
+  
+  // Get all .tsx and .ts files in the client/src directory
+  function getAllFiles(dir, fileList = []) {
+    const files = fs.readdirSync(dir);
+    
+    files.forEach(file => {
+      const filePath = path.join(dir, file);
+      const stat = fs.statSync(filePath);
+      
+      if (stat.isDirectory()) {
+        getAllFiles(filePath, fileList);
+      } else if (/\.(tsx?|jsx?)$/.test(file)) {
+        fileList.push(filePath);
+      }
+    });
+    
+    return fileList;
   }
   
-  // Fix App.tsx
-  const appTsxPath = path.join(__dirname, 'client', 'src', 'App.tsx');
-  if (fs.existsSync(appTsxPath)) {
-    let content = fs.readFileSync(appTsxPath, 'utf8');
-    // Replace all @/ imports with ./ imports
-    content = content.replace(/@\/components\//g, './components/');
-    content = content.replace(/@\/hooks\//g, './hooks/');
-    content = content.replace(/@\/pages\//g, './pages/');
-    content = content.replace(/@\/lib\//g, './lib/');
-    content = content.replace(/@\/store\//g, './store/');
-    fs.writeFileSync(appTsxPath, content);
-    console.log('✅ Fixed App.tsx');
-  }
+  // Get all source files
+  const srcDir = path.join(__dirname, 'client', 'src');
+  const files = getAllFiles(srcDir);
   
-  // Fix toaster.tsx
-  const toasterPath = path.join(__dirname, 'client', 'src', 'components', 'ui', 'toaster.tsx');
-  if (fs.existsSync(toasterPath)) {
-    let content = fs.readFileSync(toasterPath, 'utf8');
-    content = content.replace(
-      'import { useToast } from "@/hooks/use-toast"',
-      'import { useToast } from "../../hooks/use-toast"'
-    );
-    content = content.replace(
-      'import {',
-      'import {'
-    ).replace(
-      '} from "@/components/ui/toast"',
-      '} from "./toast"'
-    );
-    fs.writeFileSync(toasterPath, content);
-    console.log('✅ Fixed toaster.tsx');
-  }
-}
-
-// Fix path imports in files
-function fixPathImports() {
-  console.log('🔧 Fixing path imports for Vercel compatibility...');
+  // Remove all @/ imports (replace with relative paths)
+  let fixedCount = 0;
   
-  // Always manually fix critical files first
-  manuallyFixCriticalFiles();
-  
-  // Try to run our comprehensive fix-paths.js script for all other files
-  try {
-    const fixPathsScript = path.join(__dirname, 'fix-paths.js');
-    if (fs.existsSync(fixPathsScript)) {
-      console.log('📁 Found fix-paths.js script, running it to fix all path imports...');
-      // Use execSync to ensure it's completed before moving on
-      const output = execSync(`node ${fixPathsScript}`, { encoding: 'utf8' });
-      console.log(output);
-      console.log('✅ Successfully ran fix-paths.js to fix all path imports');
-    } else {
-      console.log('⚠️ fix-paths.js not found, only critical files have been fixed.');
+  files.forEach(filePath => {
+    const content = fs.readFileSync(filePath, 'utf8');
+    
+    // Replace all @/ path references with ./ 
+    let newContent = content;
+    
+    // Handle import statements
+    newContent = newContent.replace(/@\/components\//g, './components/');
+    newContent = newContent.replace(/@\/hooks\//g, './hooks/');
+    newContent = newContent.replace(/@\/pages\//g, './pages/');
+    newContent = newContent.replace(/@\/lib\//g, './lib/');
+    newContent = newContent.replace(/@\/store\//g, './store/');
+    
+    // Handle JSX references
+    newContent = newContent.replace(/<Toaster\s*\/>/g, '');
+    
+    // Handle removal of import { Toaster } statements
+    newContent = newContent.replace(/import\s+{.*?Toaster.*?}\s+from\s+["'].*?\/toaster["'];?(\r?\n)?/g, '');
+    
+    if (newContent !== content) {
+      fs.writeFileSync(filePath, newContent);
+      console.log(`✅ Fixed path aliases in ${filePath}`);
+      fixedCount++;
     }
-  } catch (error) {
-    console.error(`⚠️ Error running fix-paths.js: ${error.message}`);
-    console.log('⚠️ Only critical files have been fixed.');
-  }
+  });
+  
+  console.log(`🔧 Fixed ${fixedCount} files`);
 }
 
 // Main build function
@@ -116,46 +101,22 @@ async function build() {
     ensureDir(distDir);
     ensureDir(apiDir);
     
-    // 0. Fix import paths for Vercel
-    fixPathImports();
+    // 1. Fix all path aliases
+    fixPathAliases();
     
-    // 1. Build client
+    // 2. Build client
     console.log('🔷 Building client application...');
-    
-    // 1.1 First create a temporary package.json for the client
-    const tempPackageJson = {
-      name: "agrofix-client",
-      private: true,
-      version: "0.1.0",
-      type: "module",
-      scripts: {
-        dev: "vite",
-        build: "vite build",
-        preview: "vite preview"
-      }
-    };
-    fs.writeFileSync(
-      path.join(__dirname, 'client', 'package.json'), 
-      JSON.stringify(tempPackageJson, null, 2)
-    );
-    
-    // 1.2 Build with vite directly (not using npm run build which might not work in client dir)
     await runCommand('npx vite build', path.join(__dirname, 'client'));
     
-    // 2. Copy API server file
+    // 3. Create API entry point
     console.log('🔷 Setting up API for serverless deployment...');
     const apiContent = `
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 import express from 'express';
 import cors from 'cors';
 import { json } from 'express';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 // Create Express server
 const app = express();
@@ -164,7 +125,7 @@ app.use(json());
 
 // Initialize and setup routes
 import('../dist/index.js')
-  .then(module => {
+  .then(() => {
     console.log('✅ Server initialized successfully');
   })
   .catch(err => {
@@ -178,7 +139,7 @@ export default app;
     fs.writeFileSync(path.join(apiDir, 'index.js'), apiContent);
     console.log('✅ API entry point created');
     
-    // 3. Bundle server with esbuild
+    // 4. Bundle server
     console.log('🔷 Building server application...');
     await runCommand('npx esbuild server/index.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/index.js');
     
