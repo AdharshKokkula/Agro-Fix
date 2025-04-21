@@ -1,0 +1,14 @@
+# Ignore unnecessary files for deployment
+node_modules
+README.md
+.github
+.git
+**/.DS_Store
+.gitignore
+drizzle
+
+# Don't ignore these specific files needed for build
+!api/index.js
+!build.mjs
+!vercel.json
+!package.json
