@@ -1,5 +1,5 @@
 // build.mjs - Custom build script for Vercel deployment
-import { exec } from 'child_process';
+import { exec, execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -33,10 +33,8 @@ function ensureDir(dir) {
   }
 }
 
-// Fix path imports in files
-function fixPathImports() {
-  console.log('🔧 Fixing path imports for Vercel compatibility...');
-  
+// Manual fixes for critical files
+function manuallyFixCriticalFiles() {
   // Fix main.tsx
   const mainTsxPath = path.join(__dirname, 'client', 'src', 'main.tsx');
   if (fs.existsSync(mainTsxPath)) {
@@ -47,6 +45,20 @@ function fixPathImports() {
     );
     fs.writeFileSync(mainTsxPath, content);
     console.log('✅ Fixed main.tsx');
+  }
+  
+  // Fix App.tsx
+  const appTsxPath = path.join(__dirname, 'client', 'src', 'App.tsx');
+  if (fs.existsSync(appTsxPath)) {
+    let content = fs.readFileSync(appTsxPath, 'utf8');
+    // Replace all @/ imports with ./ imports
+    content = content.replace(/@\/components\//g, './components/');
+    content = content.replace(/@\/hooks\//g, './hooks/');
+    content = content.replace(/@\/pages\//g, './pages/');
+    content = content.replace(/@\/lib\//g, './lib/');
+    content = content.replace(/@\/store\//g, './store/');
+    fs.writeFileSync(appTsxPath, content);
+    console.log('✅ Fixed App.tsx');
   }
   
   // Fix toaster.tsx
@@ -66,6 +78,31 @@ function fixPathImports() {
     );
     fs.writeFileSync(toasterPath, content);
     console.log('✅ Fixed toaster.tsx');
+  }
+}
+
+// Fix path imports in files
+function fixPathImports() {
+  console.log('🔧 Fixing path imports for Vercel compatibility...');
+  
+  // Always manually fix critical files first
+  manuallyFixCriticalFiles();
+  
+  // Try to run our comprehensive fix-paths.js script for all other files
+  try {
+    const fixPathsScript = path.join(__dirname, 'fix-paths.js');
+    if (fs.existsSync(fixPathsScript)) {
+      console.log('📁 Found fix-paths.js script, running it to fix all path imports...');
+      // Use execSync to ensure it's completed before moving on
+      const output = execSync(`node ${fixPathsScript}`, { encoding: 'utf8' });
+      console.log(output);
+      console.log('✅ Successfully ran fix-paths.js to fix all path imports');
+    } else {
+      console.log('⚠️ fix-paths.js not found, only critical files have been fixed.');
+    }
+  } catch (error) {
+    console.error(`⚠️ Error running fix-paths.js: ${error.message}`);
+    console.log('⚠️ Only critical files have been fixed.');
   }
 }
 
