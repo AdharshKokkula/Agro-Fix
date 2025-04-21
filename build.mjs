@@ -18,10 +18,28 @@ if (!fs.existsSync('dist')) {
 const isVercel = process.env.VERCEL === '1';
 console.log(`Building on ${isVercel ? 'Vercel' : 'local environment'}`);
 
-// Build the client first (frontend)
+// Fix the toaster import issue by creating a temporary fix in main.tsx
+console.log('\n🔧 Fixing module resolution issues...');
+const mainTsxPath = 'client/src/main.tsx';
+if (fs.existsSync(mainTsxPath)) {
+  let mainTsxContent = fs.readFileSync(mainTsxPath, 'utf8');
+  
+  // Change the problematic import
+  mainTsxContent = mainTsxContent.replace(
+    `import { Toaster } from "@/components/ui/toaster";`,
+    `// Fix for Vercel build
+// Original: import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "./components/ui/toaster";`
+  );
+  
+  fs.writeFileSync(mainTsxPath, mainTsxContent);
+  console.log('✅ Fixed imports in main.tsx');
+}
+
+// Build the client (frontend)
 console.log('\n📦 Building client...');
 try {
-  // Navigate to client directory and build
+  // First apply a quick fix to make sure vite can resolve all modules
   runCommand('cd client && npx vite build');
   console.log('✅ Client build completed');
 } catch (error) {
@@ -40,14 +58,14 @@ try {
 }
 
 // Prepare for deployment
-console.log('\n📦 Copying files for deployment...');
+console.log('\n📦 Preparing API for Vercel...');
 
-// Ensure the API directory exists for Vercel
+// Ensure the API directory exists
 if (!fs.existsSync('api')) {
   fs.mkdirSync('api');
 }
 
-// Create or update special file for Vercel
+// Create the serverless API file
 const apiContent = `// Serverless function for Vercel
 import express from 'express';
 import cors from 'cors';

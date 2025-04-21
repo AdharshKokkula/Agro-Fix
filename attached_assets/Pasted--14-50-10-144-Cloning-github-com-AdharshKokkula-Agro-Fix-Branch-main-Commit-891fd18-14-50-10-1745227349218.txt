@@ -1,0 +1,71 @@
+[14:50:10.144] Cloning github.com/AdharshKokkula/Agro-Fix (Branch: main, Commit: 891fd18)
+[14:50:10.155] Skipping build cache, deployment was triggered without cache.
+[14:50:10.944] Cloning completed: 800.000ms
+[14:50:11.066] Found .vercelignore
+[14:50:11.112] Removed 28 ignored files defined in .vercelignore
+[14:50:11.557] Running build in Washington, D.C., USA (East) – iad1
+[14:50:11.715] Running "vercel build"
+[14:50:12.191] Vercel CLI 41.6.0
+[14:50:13.031] Running "install" command: `npm install`...
+[14:50:15.752] npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+[14:50:16.343] npm warn deprecated npmlog@5.0.1: This package is no longer supported.
+[14:50:16.663] npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+[14:50:17.221] npm warn deprecated gauge@3.0.2: This package is no longer supported.
+[14:50:17.282] npm warn deprecated are-we-there-yet@2.0.0: This package is no longer supported.
+[14:50:18.066] npm warn deprecated @esbuild-kit/esm-loader@2.6.5: Merged into tsx: https://tsx.is
+[14:50:18.086] npm warn deprecated @esbuild-kit/core-utils@3.3.2: Merged into tsx: https://tsx.is
+[14:50:18.223] npm warn deprecated glob@7.2.3: Glob versions prior to v9 are no longer supported
+[14:50:24.367] 
+[14:50:24.368] added 561 packages, and audited 562 packages in 11s
+[14:50:24.368] 
+[14:50:24.369] 68 packages are looking for funding
+[14:50:24.369]   run `npm fund` for details
+[14:50:24.408] 
+[14:50:24.408] 7 moderate severity vulnerabilities
+[14:50:24.408] 
+[14:50:24.408] To address issues that do not require attention, run:
+[14:50:24.408]   npm audit fix
+[14:50:24.408] 
+[14:50:24.408] To address all issues (including breaking changes), run:
+[14:50:24.408]   npm audit fix --force
+[14:50:24.409] 
+[14:50:24.409] Run `npm audit` for details.
+[14:50:24.602] Building on Vercel
+[14:50:24.603] 
+[14:50:24.603] 📦 Building client...
+[14:50:24.603] Executing: cd client && npx vite build
+[14:50:26.956] [36mvite v5.4.14 [32mbuilding for production...[36m[39m
+[14:50:27.008] transforming...
+[14:50:27.269] [32m✓[39m 3 modules transformed.
+[14:50:27.275] [31mx[39m Build failed in 293ms
+[14:50:27.275] [31merror during build:
+[14:50:27.276] [31m[vite]: Rollup failed to resolve import "@/components/ui/toaster" from "/vercel/path0/client/src/main.tsx".
+[14:50:27.276] This is most likely unintended because it can break your application at runtime.
+[14:50:27.276] If you do want to externalize this module explicitly add it to
+[14:50:27.276] `build.rollupOptions.external`[31m
+[14:50:27.276]     at viteWarn (file:///vercel/path0/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:65747:17)
+[14:50:27.276]     at onRollupWarning (file:///vercel/path0/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:65779:5)
+[14:50:27.276]     at onwarn (file:///vercel/path0/node_modules/vite/dist/node/chunks/dep-CHZK6zbr.js:65442:7)
+[14:50:27.276]     at file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:19452:13
+[14:50:27.277]     at Object.logger [as onLog] (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:21178:9)
+[14:50:27.277]     at ModuleLoader.handleInvalidResolvedId (file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:20067:26)
+[14:50:27.277]     at file:///vercel/path0/node_modules/rollup/dist/es/shared/node-entry.js:20025:26[39m
+[14:50:27.295] ❌ Client build failed: Error: Command failed: cd client && npx vite build
+[14:50:27.296]     at genericNodeError (node:internal/errors:983:15)
+[14:50:27.296]     at wrappedFn (node:internal/errors:537:14)
+[14:50:27.296]     at checkExecSyncError (node:child_process:882:11)
+[14:50:27.296]     at execSync (node:child_process:954:15)
+[14:50:27.296]     at runCommand (file:///vercel/path0/build.mjs:9:10)
+[14:50:27.296]     at file:///vercel/path0/build.mjs:25:3
+[14:50:27.297]     at ModuleJob.run (node:internal/modules/esm/module_job:271:25)
+[14:50:27.297]     at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:578:26)
+[14:50:27.297]     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:116:5) {
+[14:50:27.297]   status: 1,
+[14:50:27.297]   signal: null,
+[14:50:27.297]   output: [ null, null, null ],
+[14:50:27.297]   pid: 195,
+[14:50:27.297]   stdout: null,
+[14:50:27.297]   stderr: null
+[14:50:27.297] }
+[14:50:27.302] Error: Command "node build.mjs" exited with 1
+[14:50:28.990] 
