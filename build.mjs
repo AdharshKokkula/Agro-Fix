@@ -1,126 +1,98 @@
-// build.mjs - Custom build script for Vercel
-import { execSync } from 'child_process';
+// build.mjs - Custom build script for Vercel deployment
+import { exec } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-// Helper function to execute commands
-function runCommand(command) {
-  console.log(`Executing: ${command}`);
-  return execSync(command, { stdio: 'inherit' });
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+console.log('🔨 Starting custom build process for Vercel deployment...');
+
+// Helper function to run commands
+function runCommand(command, cwd = __dirname) {
+  return new Promise((resolve, reject) => {
+    console.log(`📋 Running command: ${command}`);
+    exec(command, { cwd }, (error, stdout, stderr) => {
+      if (stdout) console.log(stdout);
+      if (stderr) console.error(stderr);
+      if (error) {
+        console.error(`❌ Command failed: ${command}`);
+        return reject(error);
+      }
+      resolve();
+    });
+  });
 }
 
-// Ensure directories exist
-if (!fs.existsSync('dist')) {
-  fs.mkdirSync('dist');
+// Helper to ensure directory exists
+function ensureDir(dir) {
+  if (!fs.existsSync(dir)) {
+    console.log(`📁 Creating directory: ${dir}`);
+    fs.mkdirSync(dir, { recursive: true });
+  }
 }
 
-// Check if we're running on Vercel
-const isVercel = process.env.VERCEL === '1';
-console.log(`Building on ${isVercel ? 'Vercel' : 'local environment'}`);
+// Main build function
+async function build() {
+  try {
+    // Setup directories
+    const distDir = path.join(__dirname, 'dist');
+    const apiDir = path.join(__dirname, 'api');
+    
+    ensureDir(distDir);
+    ensureDir(apiDir);
+    
+    // 1. Build client
+    console.log('🔷 Building client application...');
+    await runCommand('npm run build', path.join(__dirname, 'client'));
+    
+    // 2. Copy API server file
+    console.log('🔷 Setting up API for serverless deployment...');
+    const apiContent = `
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 
-// Fix the toaster import issue by creating a temporary fix in main.tsx
-console.log('\n🔧 Fixing module resolution issues...');
-const mainTsxPath = 'client/src/main.tsx';
-if (fs.existsSync(mainTsxPath)) {
-  let mainTsxContent = fs.readFileSync(mainTsxPath, 'utf8');
-  
-  // Change the problematic import
-  mainTsxContent = mainTsxContent.replace(
-    `import { Toaster } from "@/components/ui/toaster";`,
-    `// Fix for Vercel build
-// Original: import { Toaster } from "@/components/ui/toaster";
-import { Toaster } from "./components/ui/toaster";`
-  );
-  
-  fs.writeFileSync(mainTsxPath, mainTsxContent);
-  console.log('✅ Fixed imports in main.tsx');
-}
-
-// Build the client (frontend)
-console.log('\n📦 Building client...');
-try {
-  // First apply a quick fix to make sure vite can resolve all modules
-  runCommand('cd client && npx vite build');
-  console.log('✅ Client build completed');
-} catch (error) {
-  console.error('❌ Client build failed:', error);
-  process.exit(1);
-}
-
-// Build the server (backend)
-console.log('\n📦 Building server...');
-try {
-  runCommand('npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist');
-  console.log('✅ Server build completed');
-} catch (error) {
-  console.error('❌ Server build failed:', error);
-  process.exit(1);
-}
-
-// Prepare for deployment
-console.log('\n📦 Preparing API for Vercel...');
-
-// Ensure the API directory exists
-if (!fs.existsSync('api')) {
-  fs.mkdirSync('api');
-}
-
-// Create the serverless API file
-const apiContent = `// Serverless function for Vercel
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import express from 'express';
 import cors from 'cors';
-import { setupAuth } from '../server/auth.js';
-import { initializeDatabase } from '../server/db.js';
-import { registerRoutes } from '../server/routes.js';
+import { json } from 'express';
 
-// Create Express app
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Create Express server
 const app = express();
-
-// Middlewares
 app.use(cors());
-app.use(express.json());
+app.use(json());
 
-// Initialize database
-async function init() {
-  try {
-    await initializeDatabase();
-    console.log('Database initialized successfully');
+// Initialize and setup routes
+import('../dist/index.js')
+  .then(module => {
+    console.log('✅ Server initialized successfully');
+  })
+  .catch(err => {
+    console.error('❌ Failed to initialize server:', err);
+  });
+
+// Export the Express API
+export default app;
+    `;
+    
+    fs.writeFileSync(path.join(apiDir, 'index.js'), apiContent);
+    console.log('✅ API entry point created');
+    
+    // 3. Bundle server with esbuild
+    console.log('🔷 Building server application...');
+    await runCommand('npx esbuild server/index.ts --bundle --platform=node --format=esm --packages=external --outfile=dist/index.js');
+    
+    console.log('🎉 Build completed successfully!');
   } catch (error) {
-    console.error('Database initialization failed:', error);
+    console.error('❌ Build failed:', error);
+    process.exit(1);
   }
 }
 
-// Setup auth and routes
-let initialized = false;
-async function ensureInitialized() {
-  if (!initialized) {
-    await init();
-    // Setup authentication
-    setupAuth(app);
-    initialized = true;
-  }
-}
-
-// Handle API requests
-app.all('*', async (req, res) => {
-  try {
-    await ensureInitialized();
-    
-    // Register routes for each request (necessary for serverless)
-    await registerRoutes(app);
-    
-    // Let Express handle the request
-    app._router.handle(req, res);
-  } catch (error) {
-    console.error('Error handling request:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-// Export for Vercel
-export default app;`;
-
-fs.writeFileSync('api/index.js', apiContent);
-console.log('✅ Created API handler for Vercel');
-
-console.log('\n✅ Build completed successfully');
+// Run the build
+build();
