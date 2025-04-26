@@ -35,18 +35,18 @@ async function fixImports() {
   console.log('🔍 Looking for problematic imports...');
 
   // Fix main.tsx
-  fixImportsInFile('client/src/main.tsx', [
-    [
-      'import { Toaster } from "@/components/ui/toaster";',
-      'import { Toaster } from "./components/ui/toaster";'
-    ]
-  ]);
+  // fixImportsInFile('client/src/main.tsx', [
+  //   [
+  //     'import { Toaster } from "@/components/ui/toaster";',
+  //     'import { Toaster } from "./components/ui/toaster";'
+  //   ]
+  // ]);
 
   // Fix any other files with alias imports if needed
   // List of files to check for @ imports
-  const filesToFix = [
-    'client/src/components/ui/toaster.tsx'
-  ];
+  // const filesToFix = [
+  //   'client/src/components/ui/toaster.tsx'
+  // ];
 
   for (const file of filesToFix) {
     fixImportsInFile(file, [

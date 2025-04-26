@@ -14,10 +14,10 @@ function fixToasterImports() {
     let content = fs.readFileSync(mainTsxPath, 'utf8');
     
     // Replace the problematic import
-    content = content.replace(
-      'import { Toaster } from "@/components/ui/toaster";',
-      'import { Toaster } from "./components/ui/toaster";'
-    );
+    // content = content.replace(
+    //   'import { Toaster } from "@/components/ui/toaster";',
+    //   'import { Toaster } from "./components/ui/toaster";'
+    // );
     
     fs.writeFileSync(mainTsxPath, content);
     console.log('✅ Fixed main.tsx');
