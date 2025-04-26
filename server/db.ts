@@ -1,33 +1,37 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
+import { Pool, neonConfig } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-serverless";
 import ws from "ws";
 import * as schema from "@shared/schema";
 
 neonConfig.webSocketConstructor = ws;
 
 if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
+  console.error(
+    "Error: DATABASE_URL is not set. Please set it in your environment variables or .env file."
   );
+  process.exit(1); // Exit the process with an error code
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+// Use the DATABASE_URL for database initialization
+const databaseUrl = process.env.DATABASE_URL;
+
+export const pool = new Pool({ connectionString: databaseUrl });
 export const db = drizzle(pool, { schema });
 
 // Function to apply database migrations/ensure tables exist
 export async function initializeDatabase() {
   try {
     console.log("Initializing database...");
-    
+
     // Read and execute the SQL from our migration file
-    const fs = await import('fs');
-    const path = await import('path');
-    
+    const fs = await import("fs");
+    const path = await import("path");
+
     try {
       // Read the schema SQL file
-      const schemaPath = path.resolve('./drizzle/0000_initial_schema.sql');
-      const schemaSql = fs.readFileSync(schemaPath, 'utf8');
-      
+      const schemaPath = path.resolve("./drizzle/0000_initial_schema.sql");
+      const schemaSql = fs.readFileSync(schemaPath, "utf8");
+
       // Execute the SQL to create tables
       await pool.query(schemaSql);
       console.log("Database tables created/updated successfully");
@@ -48,7 +52,7 @@ export async function initializeDatabase() {
 async function createTablesDirectly() {
   try {
     console.log("Creating tables directly...");
-    
+
     // Users table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
@@ -66,7 +70,7 @@ async function createTablesDirectly() {
         created_at TEXT
       );
     `);
-    
+
     // Products table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS products (
@@ -80,7 +84,7 @@ async function createTablesDirectly() {
         in_stock BOOLEAN DEFAULT true
       );
     `);
-    
+
     // Carts table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS carts (
@@ -90,7 +94,7 @@ async function createTablesDirectly() {
         updated_at TEXT
       );
     `);
-    
+
     // Orders table
     await pool.query(`
       CREATE TABLE IF NOT EXISTS orders (
@@ -113,12 +117,18 @@ async function createTablesDirectly() {
         created_at TEXT
       );
     `);
-    
+
     // Create indexes
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_carts_user_id ON carts (user_id);`);
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders (user_id);`);
-    await pool.query(`CREATE INDEX IF NOT EXISTS idx_orders_order_number ON orders (order_number);`);
-    
+    await pool.query(
+      `CREATE INDEX IF NOT EXISTS idx_carts_user_id ON carts (user_id);`
+    );
+    await pool.query(
+      `CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders (user_id);`
+    );
+    await pool.query(
+      `CREATE INDEX IF NOT EXISTS idx_orders_order_number ON orders (order_number);`
+    );
+
     console.log("Tables created successfully!");
   } catch (error) {
     console.error("Error creating tables directly:", error);

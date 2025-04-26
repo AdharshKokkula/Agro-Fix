@@ -115,3 +115,4 @@ export type CartItem = z.infer<typeof cartItemSchema>;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type Order = typeof orders.$inferSelect;
 export type OrderItem = z.infer<typeof orderItemSchema>;
+

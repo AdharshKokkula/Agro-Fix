@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS products (
   name TEXT NOT NULL,
   category TEXT NOT NULL,
   price INTEGER NOT NULL,
-  min_order_quantity INTEGER NOT NULL,
-  image_url TEXT,
+  min_order_quantity INTEGER NOT NULL DEFAULT 1,
+  image_url TEXT DEFAULT '',
   description TEXT,
   in_stock BOOLEAN DEFAULT true
 );
@@ -61,3 +61,37 @@ CREATE TABLE IF NOT EXISTS orders (
 CREATE INDEX IF NOT EXISTS idx_carts_user_id ON carts (user_id);
 CREATE INDEX IF NOT EXISTS idx_orders_user_id ON orders (user_id);
 CREATE INDEX IF NOT EXISTS idx_orders_order_number ON orders (order_number);
+
+-- Add new columns with default values
+ALTER TABLE products
+ADD COLUMN IF NOT EXISTS min_order_quantity INTEGER DEFAULT 1,
+ADD COLUMN IF NOT EXISTS image_url TEXT DEFAULT '',
+ADD COLUMN IF NOT EXISTS in_stock BOOLEAN DEFAULT true;
+
+-- -- Migrate data from old columns to new columns
+-- UPDATE products
+-- SET min_order_quantity = COALESCE(minorderquantity, 1),
+--     image_url = COALESCE(imageurl, ''),
+--     in_stock = COALESCE(instock, true);
+
+-- Make new columns NOT NULL
+ALTER TABLE products
+ALTER COLUMN min_order_quantity SET NOT NULL,
+ALTER COLUMN image_url SET NOT NULL,
+ALTER COLUMN in_stock SET NOT NULL;
+
+-- Drop old columns
+ALTER TABLE products
+DROP COLUMN IF EXISTS minorderquantity,
+DROP COLUMN IF EXISTS imageurl,
+DROP COLUMN IF EXISTS instock;
+
+-- Ensure 'name' in 'products' is unique
+-- ALTER TABLE products ADD CONSTRAINT unique_product_name UNIQUE (name);
+
+-- Ensure 'user_id' in 'carts' is unique
+-- ALTER TABLE carts ADD CONSTRAINT unique_user_id UNIQUE (user_id);
+
+-- Ensure 'order_number' in 'orders' is unique
+-- ALTER TABLE orders ADD CONSTRAINT unique_order_number UNIQUE (order_number);
+

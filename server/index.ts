@@ -1,6 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import dotenv from "dotenv";
+dotenv.config();
 
 const app = express();
 app.use(express.json());
@@ -40,22 +42,23 @@ app.use((req, res, next) => {
   try {
     // Initialize database if available
     if (process.env.DATABASE_URL) {
-      const { initializeDatabase } = await import('./db');
+      console.log("DATABASE_URL:", process.env.DATABASE_URL);
+      const { initializeDatabase } = await import("./db");
       await initializeDatabase();
     }
-    
+
     // Generate a session secret if not provided in env
     if (!process.env.SESSION_SECRET) {
-      const { nanoid } = await import('nanoid');
+      const { nanoid } = await import("nanoid");
       process.env.SESSION_SECRET = nanoid(32);
     }
-    
+
     // Generate a JWT secret if not provided in env
     if (!process.env.JWT_SECRET) {
-      const { nanoid } = await import('nanoid');
+      const { nanoid } = await import("nanoid");
       process.env.JWT_SECRET = nanoid(32);
     }
-    
+
     const server = await registerRoutes(app);
 
     app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -79,13 +82,16 @@ app.use((req, res, next) => {
     // this serves both the API and the client.
     // It is the only port that is not firewalled.
     const port = 5000;
-    server.listen({
-      port,
-      host: "0.0.0.0",
-      reusePort: true,
-    }, () => {
-      log(`serving on port ${port}`);
-    });
+    server.listen(
+      {
+        port,
+        host: "0.0.0.0",
+        reusePort: true,
+      },
+      () => {
+        log(`serving on port ${port}`);
+      }
+    );
   } catch (error) {
     console.error("Failed to start server:", error);
     process.exit(1);
